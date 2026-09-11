@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf9f7;
+  --foreground: #1c1c1e;
+
+  --color-ink: #1c1c1e;
+  --color-paper: #ffffff;
+  --color-cream: #faf9f7;
+  --color-smoke: #eeece9;
+  /* Grafite amostrado do logo oficial da Guets (RGB 63,64,67) — usado como
+     cor interativa/de marca no lugar de um accent colorido. */
+  --color-graphite: #3f4043;
+  --color-muted: #7c7a77;
+  /* Só para estados de erro/validação — não é uma cor de marca. */
+  --color-danger: #b3261e;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-ink: var(--color-ink);
+  --color-paper: var(--color-paper);
+  --color-cream: var(--color-cream);
+  --color-smoke: var(--color-smoke);
+  --color-graphite: var(--color-graphite);
+  --color-muted: var(--color-muted);
+  --color-danger: var(--color-danger);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-slide-in {
+  animation: fade-slide-in 0.35s ease-out;
 }
