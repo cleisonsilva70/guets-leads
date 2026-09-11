@@ -4,6 +4,6 @@
  * precisar mexer em código — ver .env.example.
  */
 export const linksConfig = {
-  instagramUrl: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "https://instagram.com/guets",
+  instagramUrl: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "https://instagram.com/guetsfit",
   b2cCatalogUrl: process.env.NEXT_PUBLIC_B2C_CATALOG_URL || "",
 } as const;
