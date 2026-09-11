@@ -155,7 +155,7 @@ export function RegistrationForm({ onSubmit, submitting, submitError }: Registra
       {submitError ? <p className={errorClasses}>{submitError}</p> : null}
 
       <Button type="submit" disabled={submitting}>
-        {submitting ? "Enviando..." : "Concluir cadastro"}
+        {submitting ? "ENVIANDO..." : "CONCLUIR CADASTRO"}
       </Button>
     </form>
   );

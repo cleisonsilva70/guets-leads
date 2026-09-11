@@ -44,7 +44,7 @@ export default async function SuccessPage({ params }: PageProps) {
                 consultantName={lead.consultant.name}
                 href={buildWhatsappLink(
                   lead.consultant.whatsapp,
-                  `Olá ${lead.consultant.name}! Sou ${lead.name}, da ${lead.business_name}. Acabei de concluir meu cadastro de atacado pelo site e fui direcionada para o seu atendimento. Estou ciente de que o pedido mínimo é de ${minimumOrderLabel} e quero conhecer os modelos disponíveis.`
+                  `Olá ${lead.consultant.name}! Sou ${lead.name}, da ${lead.business_name}. Acabei de concluir meu cadastro de atacado pelo site e recebi seu contato para atendimento. Estou ciente de que o pedido mínimo é de ${minimumOrderLabel} e quero conhecer os modelos disponíveis.`
                 )}
               />
             </div>

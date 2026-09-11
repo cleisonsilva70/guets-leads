@@ -188,7 +188,6 @@ export function QuizWizard() {
         <QuizScreen
           step={STEP_NUMBER.purpose}
           totalSteps={TOTAL_STEPS}
-          eyebrow="Pergunta 1"
           title="Você pretende comprar nossas peças para:"
         >
           {purposeOptions.map((opt) => (
@@ -201,13 +200,17 @@ export function QuizWizard() {
       return (
         <QuizScreen
           title="Esse atendimento é exclusivo para o atacado"
-          subtitle="Nosso canal de atacado é feito para lojistas e revendedores que compram para revender."
+          subtitle="Nosso canal de atacado é feito para lojistas e revendedores."
         >
           {linksConfig.b2cCatalogUrl ? (
             <a href={linksConfig.b2cCatalogUrl}>
               <Button variant="secondary">CONHECER NOSSOS PRODUTOS</Button>
             </a>
-          ) : null}
+          ) : (
+            <a href={linksConfig.instagramUrl} target="_blank" rel="noreferrer">
+              <Button variant="secondary">CONHECER A GUETS NO INSTAGRAM</Button>
+            </a>
+          )}
         </QuizScreen>
       );
 
@@ -245,7 +248,7 @@ export function QuizWizard() {
         <QuizScreen
           step={STEP_NUMBER.segment}
           totalSteps={TOTAL_STEPS}
-          title="Hoje você já vende moda feminina ou fitness?"
+          title="Hoje você já vende moda fitness ou feminina?"
         >
           {segmentOptions.map((opt) => (
             <OptionButton key={opt.value} label={opt.label} onClick={() => handleSegment(opt.value)} />
@@ -258,7 +261,7 @@ export function QuizWizard() {
         <QuizScreen
           step={STEP_NUMBER.channel}
           totalSteps={TOTAL_STEPS}
-          title="Onde você vende atualmente?"
+          title="Onde você vende ou pretende vender suas peças?"
         >
           {salesChannelOptions.map((opt) => (
             <OptionButton key={opt.value} label={opt.label} onClick={() => handleChannel(opt.value)} />
