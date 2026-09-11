@@ -9,7 +9,8 @@ import type {
 /**
  * Pesos do Lead Score. Nunca exibidos ao usuário — apenas usados
  * internamente para priorização e para a classificação do lead.
- * O score NÃO controla o Round Robin (ver lib/round-robin).
+ * O score NÃO controla o Round Robin (ele roda no Apps Script da planilha,
+ * ver google-apps-script/Code.gs).
  */
 export const scoringWeights = {
   segment: {

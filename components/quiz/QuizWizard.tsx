@@ -169,13 +169,26 @@ export function QuizWizard() {
         throw new Error(body?.error === "invalid_payload" ? "Verifique os dados informados." : "Não foi possível concluir seu cadastro. Tente novamente.");
       }
 
-      const data = (await response.json()) as { leadId: string };
+      const data = (await response.json()) as {
+        leadId: string;
+        consultant: { name: string; whatsapp: string } | null;
+      };
+
+      sessionStorage.setItem(
+        "guets_success",
+        JSON.stringify({
+          leadId: data.leadId,
+          name: values.name,
+          businessName: values.businessName,
+          consultant: data.consultant,
+        })
+      );
 
       fireMetaPixelStandardEvent("Lead");
       fireMetaPixelEvent("QualifiedLead");
       fireGa4Event("registration_complete");
 
-      router.push(`/sucesso/${data.leadId}`);
+      router.push("/sucesso");
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Erro inesperado.");
       setSubmitting(false);

@@ -48,15 +48,13 @@ export async function POST(request: Request) {
         eventName: FUNNEL_EVENTS.consultantAssigned,
         sessionId: parsed.data.sessionId,
         leadId: result.leadId,
-        metadata: { consultantId: result.consultant.id, consultantName: result.consultant.name },
+        metadata: { consultantName: result.consultant.name },
       });
     }
 
     return NextResponse.json({
       leadId: result.leadId,
-      consultant: result.consultant
-        ? { id: result.consultant.id, name: result.consultant.name, whatsapp: result.consultant.whatsapp }
-        : null,
+      consultant: result.consultant,
     });
   } catch (error) {
     console.error("Erro ao gravar lead", error);
