@@ -247,8 +247,8 @@ export function QuizWizard() {
     case "minimum_order_disqualified":
       return (
         <QuizScreen
-          title="Obrigado pelo carinho com a Guets!"
-          subtitle={`Hoje trabalhamos com pedido mínimo de ${minimumOrderLabel} no atacado, e tudo bem se esse ainda não é o seu momento. Fica de olho na gente — quando fizer sentido pra você, vamos adorar te ajudar a montar seu primeiro pedido.`}
+          title="Valeu pelo carinho com a Guets!"
+          subtitle={`Hoje o pedido mínimo no atacado é de ${minimumOrderLabel} — então talvez ainda não seja o momento certo, e tudo bem! Fica de olho na gente: assim que fizer sentido pra você, vamos adorar te ajudar a montar seu primeiro pedido.`}
         >
           <a href={linksConfig.instagramUrl} target="_blank" rel="noreferrer">
             <Button variant="secondary">ACOMPANHAR A MARCA NO INSTAGRAM</Button>
