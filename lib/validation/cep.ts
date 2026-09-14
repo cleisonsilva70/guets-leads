@@ -1,5 +1,5 @@
 function onlyDigits(value: string): string {
-  return value.replace(/\D/g, "");
+  return String(value).replace(/\D/g, "");
 }
 
 export function isValidCep(value: string): boolean {

@@ -126,6 +126,16 @@ function getSheet(name) {
 }
 
 /** Lê uma aba inteira e devolve como array de objetos {header: valor}. */
+/**
+ * O Google Sheets auto-detecta o tipo da célula: um WhatsApp, CEP, número de
+ * endereço ou CPF/CNPJ digitado só com dígitos vira Number, não Text. Sem
+ * isso, o valor volta como number no JSON e quebra qualquer .replace()/
+ * .trim() do lado do site (que espera string).
+ */
+function asText(value) {
+  return value === null || value === undefined || value === "" ? "" : String(value);
+}
+
 function sheetToObjects(sheet, headers) {
   const data = sheet.getDataRange().getValues();
   const rows = [];
@@ -177,7 +187,7 @@ function pickNextConsultant() {
 
   if (bestRow === -1) return null;
 
-  const consultant = { id: data[bestRow][0], name: data[bestRow][1], whatsapp: data[bestRow][2] };
+  const consultant = { id: asText(data[bestRow][0]), name: data[bestRow][1], whatsapp: asText(data[bestRow][2]) };
   sheet.getRange(bestRow + 1, 5).setValue(new Date().toISOString());
   return consultant;
 }
@@ -191,10 +201,10 @@ function submitLead(payload) {
     const consultoraNome = existing[LEADS_HEADERS.indexOf("Consultora")];
     const consultoraWhats = existing[LEADS_HEADERS.indexOf("WhatsAppConsultora")];
     return {
-      leadId: existing[LEADS_HEADERS.indexOf("LeadID")],
+      leadId: asText(existing[LEADS_HEADERS.indexOf("LeadID")]),
       isNew: false,
       consultant: consultoraNome
-        ? { id: consultoraId, name: consultoraNome, whatsapp: consultoraWhats }
+        ? { id: asText(consultoraId), name: consultoraNome, whatsapp: asText(consultoraWhats) }
         : null,
     };
   }
@@ -293,7 +303,7 @@ function listConsultants() {
     return {
       id: c.ID,
       name: c.Nome,
-      whatsapp: c.WhatsApp,
+      whatsapp: asText(c.WhatsApp),
       active: c.Ativa === true || String(c.Ativa).toUpperCase() === "TRUE",
       lastAssignedAt: c.UltimaAtribuicao || null,
       leadCount: leadCount,
@@ -332,16 +342,16 @@ function leadRowToObject(l) {
     id: l.LeadID,
     createdAt: l.DataHora instanceof Date ? l.DataHora.toISOString() : String(l.DataHora),
     name: l.Nome,
-    whatsapp: l.WhatsApp,
+    whatsapp: asText(l.WhatsApp),
     email: l.Email,
     businessName: l.NomeLoja,
     instagram: l.Instagram,
     address: l.Endereco,
-    addressNumber: l.NumeroEndereco,
+    addressNumber: asText(l.NumeroEndereco),
     neighborhood: l.Bairro,
-    zipCode: l.Cep,
+    zipCode: asText(l.Cep),
     addressComplement: l.ComplementoEndereco,
-    cpfCnpj: l.CpfCnpj,
+    cpfCnpj: asText(l.CpfCnpj),
     storeTypeLabel: l.TipoLoja,
     purchasePurposeLabel: l.Finalidade,
     segmentLabel: l.Segmento,
@@ -352,7 +362,7 @@ function leadRowToObject(l) {
     classification: l.Classificacao,
     consultantId: l.ConsultoraID || null,
     consultantName: l.Consultora || null,
-    consultantWhatsapp: l.WhatsAppConsultora || null,
+    consultantWhatsapp: l.WhatsAppConsultora ? asText(l.WhatsAppConsultora) : null,
     utmSource: l.UtmSource,
     utmMedium: l.UtmMedium,
     utmCampaign: l.UtmCampaign,

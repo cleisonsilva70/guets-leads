@@ -4,7 +4,7 @@
  * dígitos, com DDI 55 (ex: "(84) 99999-9999" -> "5584999999999").
  */
 export function normalizeWhatsapp(raw: string): string {
-  const digits = raw.replace(/\D/g, "");
+  const digits = String(raw).replace(/\D/g, "");
 
   if (digits.startsWith("55") && (digits.length === 12 || digits.length === 13)) {
     return digits;
@@ -28,7 +28,7 @@ export function isValidBrazilianWhatsapp(raw: string): boolean {
 
 /** Formata dígitos brutos como "(84) 99999-9999" enquanto o usuário digita. */
 export function formatWhatsappInput(raw: string): string {
-  const digits = raw.replace(/\D/g, "").replace(/^55/, "").slice(0, 11);
+  const digits = String(raw).replace(/\D/g, "").replace(/^55/, "").slice(0, 11);
 
   if (digits.length <= 2) return digits.length ? `(${digits}` : "";
   if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
