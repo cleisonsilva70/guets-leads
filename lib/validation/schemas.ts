@@ -3,13 +3,7 @@ import { isValidCpfOrCnpj } from "./cpf-cnpj";
 import { isValidBrazilianWhatsapp } from "./whatsapp";
 import { isValidCep } from "./cep";
 
-export const purchasePurposeSchema = z.enum([
-  "reseller_physical_store",
-  "reseller_online",
-  "reseller_in_person",
-  "starting_now",
-  "personal_use",
-]);
+export const purchasePurposeSchema = z.enum(["reseller", "starting_now", "personal_use"]);
 
 export const segmentSchema = z.enum(["fitness", "feminina", "other", "not_selling_yet"]);
 

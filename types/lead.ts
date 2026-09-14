@@ -1,9 +1,4 @@
-export type PurchasePurpose =
-  | "reseller_physical_store"
-  | "reseller_online"
-  | "reseller_in_person"
-  | "starting_now"
-  | "personal_use";
+export type PurchasePurpose = "reseller" | "starting_now" | "personal_use";
 
 export type Segment = "fitness" | "feminina" | "other" | "not_selling_yet";
 

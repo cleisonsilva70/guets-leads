@@ -13,10 +13,8 @@ export interface QuizOption<T extends string> {
 }
 
 export const purposeOptions: QuizOption<PurchasePurpose>[] = [
-  { value: "reseller_physical_store", label: "Revender em loja física" },
-  { value: "reseller_online", label: "Revender pelo Instagram / loja online" },
-  { value: "reseller_in_person", label: "Revender por catálogo ou porta a porta (sem loja fixa)" },
-  { value: "starting_now", label: "Estou começando agora" },
+  { value: "reseller", label: "Já revendo" },
+  { value: "starting_now", label: "Quero começar a revender" },
   { value: "personal_use", label: "Uso próprio" },
 ];
 

@@ -201,7 +201,7 @@ export function QuizWizard() {
         <QuizScreen
           step={STEP_NUMBER.purpose}
           totalSteps={TOTAL_STEPS}
-          title="Você pretende comprar nossas peças para:"
+          title="Pra te atender do jeitinho certo, conta pra gente: você já revende nossas peças?"
         >
           {purposeOptions.map((opt) => (
             <OptionButton key={opt.value} label={opt.label} onClick={() => handlePurpose(opt.value)} />

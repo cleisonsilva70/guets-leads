@@ -9,10 +9,8 @@ import type {
 } from "@/types/lead";
 
 export const purchasePurposeLabels: Record<PurchasePurpose, string> = {
-  reseller_physical_store: "Revender em loja física",
-  reseller_online: "Revender pelo Instagram / loja online",
-  reseller_in_person: "Revender presencialmente",
-  starting_now: "Estou começando agora",
+  reseller: "Já revendo",
+  starting_now: "Quero começar a revender",
   personal_use: "Uso próprio",
 };
 
