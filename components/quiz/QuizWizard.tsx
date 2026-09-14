@@ -252,7 +252,7 @@ export function QuizWizard() {
       return (
         <QuizScreen
           title="Vale a pena repensar esse valor!"
-          subtitle={`Com ${minimumOrderLabel} você já monta um leque ótimo de peças pra começar — e, se preferir, nossas consultoras te ajudam a fechar esse pedido inicial com as peças mais vendidas. Bora dar essa chance pro seu negócio?`}
+          subtitle={`Com ${minimumOrderLabel} você já monta um leque ótimo de peças pra começar. Se preferir, nossas consultoras te ajudam a fechar esse pedido inicial com as peças mais vendidas. Bora dar essa chance pro seu negócio?`}
         >
           <Button onClick={handleReconsiderMinimumOrder}>QUERO REPENSAR MEU PEDIDO</Button>
           <a href={linksConfig.instagramUrl} target="_blank" rel="noreferrer">
@@ -332,7 +332,7 @@ export function QuizWizard() {
           step={STEP_NUMBER.registration}
           totalSteps={TOTAL_STEPS}
           title="Complete seus dados"
-          subtitle={`Pedido mínimo: ${minimumOrderLabel} — leva menos de 1 minuto.`}
+          subtitle={`Pedido mínimo: ${minimumOrderLabel}. Leva menos de 1 minuto.`}
         >
           <RegistrationForm
             onSubmit={handleRegistrationSubmit}
