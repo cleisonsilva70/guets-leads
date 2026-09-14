@@ -11,11 +11,12 @@
  *
  *   "Leads" — cabeçalhos (linha 1), nesta ordem:
  *     LeadID | DataHora | Nome | WhatsApp | WhatsAppNormalizado | Email |
- *     NomeLoja | Instagram | Cidade | Estado | CpfCnpj | Finalidade |
- *     Segmento | CanalVenda | FaixaInvestimento | FrequenciaCompra |
- *     LeadScore | Classificacao | ConsultoraID | Consultora |
- *     WhatsAppConsultora | UtmSource | UtmMedium | UtmCampaign | UtmContent |
- *     UtmTerm | Fbclid | LandingPage | Status
+ *     NomeLoja | Instagram | Endereco | NumeroEndereco | Bairro | Cep |
+ *     ComplementoEndereco | CpfCnpj | TipoLoja | Finalidade | Segmento |
+ *     CanalVenda | FaixaInvestimento | FrequenciaCompra | LeadScore |
+ *     Classificacao | ConsultoraID | Consultora | WhatsAppConsultora |
+ *     UtmSource | UtmMedium | UtmCampaign | UtmContent | UtmTerm | Fbclid |
+ *     LandingPage | Status
  *
  *   "Consultoras" — cabeçalhos:
  *     ID | Nome | WhatsApp | Ativa | UltimaAtribuicao
@@ -51,7 +52,8 @@ const PAGE_SIZE = 25;
 
 const LEADS_HEADERS = [
   "LeadID", "DataHora", "Nome", "WhatsApp", "WhatsAppNormalizado", "Email",
-  "NomeLoja", "Instagram", "Cidade", "Estado", "CpfCnpj",
+  "NomeLoja", "Instagram", "Endereco", "NumeroEndereco", "Bairro", "Cep",
+  "ComplementoEndereco", "CpfCnpj", "TipoLoja",
   "Finalidade", "Segmento", "CanalVenda", "FaixaInvestimento", "FrequenciaCompra",
   "LeadScore", "Classificacao", "ConsultoraID", "Consultora", "WhatsAppConsultora",
   "UtmSource", "UtmMedium", "UtmCampaign", "UtmContent", "UtmTerm", "Fbclid",
@@ -210,9 +212,13 @@ function submitLead(payload) {
       case "Email": return payload.email || "";
       case "NomeLoja": return payload.businessName || "";
       case "Instagram": return payload.instagram || "";
-      case "Cidade": return payload.city || "";
-      case "Estado": return payload.state || "";
+      case "Endereco": return payload.address || "";
+      case "NumeroEndereco": return payload.addressNumber || "";
+      case "Bairro": return payload.neighborhood || "";
+      case "Cep": return payload.zipCode || "";
+      case "ComplementoEndereco": return payload.addressComplement || "";
       case "CpfCnpj": return payload.cpfCnpj || "";
+      case "TipoLoja": return payload.storeTypeLabel || "";
       case "Finalidade": return payload.purchasePurposeLabel || "";
       case "Segmento": return payload.segmentLabel || "";
       case "CanalVenda": return payload.salesChannelLabel || "";
@@ -330,9 +336,13 @@ function leadRowToObject(l) {
     email: l.Email,
     businessName: l.NomeLoja,
     instagram: l.Instagram,
-    city: l.Cidade,
-    state: l.Estado,
+    address: l.Endereco,
+    addressNumber: l.NumeroEndereco,
+    neighborhood: l.Bairro,
+    zipCode: l.Cep,
+    addressComplement: l.ComplementoEndereco,
     cpfCnpj: l.CpfCnpj,
+    storeTypeLabel: l.TipoLoja,
     purchasePurposeLabel: l.Finalidade,
     segmentLabel: l.Segmento,
     salesChannelLabel: l.CanalVenda,
@@ -360,7 +370,6 @@ function listLeads(params) {
   if (params.consultantId) leads = leads.filter((l) => l.ConsultoraID === params.consultantId);
   if (params.classification) leads = leads.filter((l) => l.Classificacao === params.classification);
   if (params.investmentRange) leads = leads.filter((l) => l.FaixaInvestimento === params.investmentRange);
-  if (params.state) leads = leads.filter((l) => l.Estado === params.state);
   if (params.status) leads = leads.filter((l) => l.Status === params.status);
   if (params.campaign) {
     const needle = String(params.campaign).toLowerCase();

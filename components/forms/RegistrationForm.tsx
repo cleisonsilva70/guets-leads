@@ -7,7 +7,9 @@ import { registrationSchema } from "@/lib/validation/schemas";
 import type { z } from "zod";
 import { formatWhatsappInput } from "@/lib/validation/whatsapp";
 import { formatCpfCnpj } from "@/lib/validation/cpf-cnpj";
-import { brazilianStates } from "@/lib/data/brazilian-states";
+import { formatCep } from "@/lib/validation/cep";
+import { storeTypeLabels } from "@/lib/labels";
+import type { StoreType } from "@/types/lead";
 import { Button } from "@/components/ui/Button";
 import { CONSENT_TEXT } from "@/lib/config/consent";
 
@@ -24,6 +26,8 @@ const inputClasses =
 
 const errorClasses = "mt-1 text-sm text-danger";
 
+const storeTypeOptions = Object.entries(storeTypeLabels) as [StoreType, string][];
+
 export function RegistrationForm({ onSubmit, submitting, submitError }: RegistrationFormProps) {
   const {
     register,
@@ -37,16 +41,21 @@ export function RegistrationForm({ onSubmit, submitting, submitError }: Registra
       whatsapp: "",
       businessName: "",
       instagram: "",
-      city: "",
-      state: undefined,
+      address: "",
+      addressNumber: "",
+      neighborhood: "",
+      zipCode: "",
+      addressComplement: "",
       cpfCnpj: "",
       email: "",
+      storeType: [],
       consent: undefined,
     },
   });
 
   const [cpfCnpjDisplay, setCpfCnpjDisplay] = useState("");
   const [whatsappDisplay, setWhatsappDisplay] = useState("");
+  const [zipCodeDisplay, setZipCodeDisplay] = useState("");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
@@ -87,30 +96,11 @@ export function RegistrationForm({ onSubmit, submitting, submitError }: Registra
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-ink">Instagram da loja</label>
+        <label className="mb-1 block text-sm font-medium text-ink">
+          Instagram da loja física ou virtual
+        </label>
         <input className={inputClasses} placeholder="@sualoja" {...register("instagram")} />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="mb-1 block text-sm font-medium text-ink">Cidade</label>
-          <input className={inputClasses} placeholder="Sua cidade" {...register("city")} />
-          {errors.city ? <p className={errorClasses}>{errors.city.message}</p> : null}
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-ink">Estado</label>
-          <select className={inputClasses} {...register("state")} defaultValue="">
-            <option value="" disabled>
-              UF
-            </option>
-            {brazilianStates.map((s) => (
-              <option key={s.uf} value={s.uf}>
-                {s.uf}
-              </option>
-            ))}
-          </select>
-          {errors.state ? <p className={errorClasses}>Selecione o estado</p> : null}
-        </div>
+        {errors.instagram ? <p className={errorClasses}>{errors.instagram.message}</p> : null}
       </div>
 
       <div>
@@ -136,6 +126,61 @@ export function RegistrationForm({ onSubmit, submitting, submitError }: Registra
       </div>
 
       <div>
+        <label className="mb-1 block text-sm font-medium text-ink">Endereço</label>
+        <input className={inputClasses} placeholder="Rua, avenida..." {...register("address")} />
+        {errors.address ? <p className={errorClasses}>{errors.address.message}</p> : null}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-ink">Número da residência</label>
+          <input className={inputClasses} placeholder="Nº" {...register("addressNumber")} />
+          {errors.addressNumber ? (
+            <p className={errorClasses}>{errors.addressNumber.message}</p>
+          ) : null}
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-ink">Bairro</label>
+          <input className={inputClasses} placeholder="Seu bairro" {...register("neighborhood")} />
+          {errors.neighborhood ? (
+            <p className={errorClasses}>{errors.neighborhood.message}</p>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-ink">CEP</label>
+          <Controller
+            control={control}
+            name="zipCode"
+            render={({ field }) => (
+              <input
+                className={inputClasses}
+                placeholder="00000-000"
+                inputMode="numeric"
+                value={zipCodeDisplay}
+                onChange={(e) => {
+                  const formatted = formatCep(e.target.value);
+                  setZipCodeDisplay(formatted);
+                  field.onChange(formatted);
+                }}
+              />
+            )}
+          />
+          {errors.zipCode ? <p className={errorClasses}>{errors.zipCode.message}</p> : null}
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-ink">Complemento</label>
+          <input
+            className={inputClasses}
+            placeholder="Apto, bloco..."
+            {...register("addressComplement")}
+          />
+        </div>
+      </div>
+
+      <div>
         <label className="mb-1 block text-sm font-medium text-ink">E-mail</label>
         <input
           className={inputClasses}
@@ -144,6 +189,38 @@ export function RegistrationForm({ onSubmit, submitting, submitError }: Registra
           {...register("email")}
         />
         {errors.email ? <p className={errorClasses}>{errors.email.message}</p> : null}
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-medium text-ink">Qual o tipo da sua loja?</label>
+        <Controller
+          control={control}
+          name="storeType"
+          render={({ field }) => (
+            <div className="space-y-2">
+              {storeTypeOptions.map(([value, label]) => {
+                const selected = field.value?.includes(value) ?? false;
+                return (
+                  <label key={value} className="flex items-center gap-3 text-sm text-ink">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 accent-graphite"
+                      checked={selected}
+                      onChange={() => {
+                        const current = field.value ?? [];
+                        field.onChange(
+                          selected ? current.filter((v) => v !== value) : [...current, value]
+                        );
+                      }}
+                    />
+                    {label}
+                  </label>
+                );
+              })}
+            </div>
+          )}
+        />
+        {errors.storeType ? <p className={errorClasses}>{errors.storeType.message}</p> : null}
       </div>
 
       <label className="flex items-start gap-3 pt-2 text-sm text-muted">

@@ -15,9 +15,13 @@ export interface AdminLead {
   email: string;
   businessName: string;
   instagram: string | null;
-  city: string;
-  state: string;
+  address: string;
+  addressNumber: string;
+  neighborhood: string;
+  zipCode: string;
+  addressComplement: string | null;
   cpfCnpj: string;
+  storeTypeLabel: string;
   purchasePurposeLabel: string;
   segmentLabel: string;
   salesChannelLabel: string;
@@ -42,7 +46,6 @@ export interface LeadListFilters {
   consultantId?: string;
   classification?: string;
   investmentRange?: string;
-  state?: string;
   status?: string;
   campaign?: string;
   page?: number;
@@ -60,7 +63,6 @@ export async function listLeads(filters: LeadListFilters): Promise<LeadListResul
     consultantId: filters.consultantId,
     classification: filters.classification,
     investmentRange: filters.investmentRange,
-    state: filters.state,
     status: filters.status,
     campaign: filters.campaign,
     page: filters.page,

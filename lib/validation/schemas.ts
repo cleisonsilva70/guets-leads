@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { isValidCpfOrCnpj } from "./cpf-cnpj";
 import { isValidBrazilianWhatsapp } from "./whatsapp";
-import { brazilianStateUfs } from "@/lib/data/brazilian-states";
+import { isValidCep } from "./cep";
 
 export const purchasePurposeSchema = z.enum([
   "reseller_physical_store",
@@ -38,6 +38,9 @@ export const purchaseFrequencySchema = z.enum([
   "first_purchase",
 ]);
 
+/** "Qual o tipo da sua loja?" no cadastro final — campo próprio do formulário que já alimenta o Bling, independente das perguntas de qualificação do quiz. */
+export const storeTypeSchema = z.enum(["physical_store", "virtual_store", "starting_now"]);
+
 /** Respostas de qualificação necessárias para um lead ser elegível ao B2B. */
 export const qualificationSchema = z.object({
   purchasePurpose: purchasePurposeSchema,
@@ -62,11 +65,15 @@ export const registrationSchema = z.object({
   name: z.string().trim().min(2, "Informe seu nome completo"),
   whatsapp: z.string().refine(isValidBrazilianWhatsapp, "WhatsApp inválido"),
   businessName: z.string().trim().min(2, "Informe o nome da loja/negócio"),
-  instagram: z.string().trim().optional(),
-  city: z.string().trim().min(2, "Informe a cidade"),
-  state: z.enum(brazilianStateUfs),
+  instagram: z.string().trim().min(1, "Informe o Instagram da loja"),
+  address: z.string().trim().min(2, "Informe o endereço"),
+  addressNumber: z.string().trim().min(1, "Informe o número"),
+  neighborhood: z.string().trim().min(2, "Informe o bairro"),
+  zipCode: z.string().refine(isValidCep, "CEP inválido"),
+  addressComplement: z.string().trim().optional(),
   cpfCnpj: z.string().refine(isValidCpfOrCnpj, "CPF/CNPJ inválido"),
   email: z.string().trim().email("E-mail inválido"),
+  storeType: z.array(storeTypeSchema).min(1, "Selecione ao menos uma opção"),
   consent: z.literal(true, {
     message: "É necessário aceitar os termos para continuar",
   }),

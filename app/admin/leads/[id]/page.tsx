@@ -42,8 +42,6 @@ export default async function LeadDetailPage({ params }: PageProps) {
           <Field label="Nome" value={lead.name} />
           <Field label="WhatsApp" value={lead.whatsapp} />
           <Field label="E-mail" value={lead.email} />
-          <Field label="Cidade" value={lead.city} />
-          <Field label="Estado" value={lead.state} />
           <Field label="Negócio" value={lead.businessName} />
           <Field
             label="Instagram"
@@ -65,6 +63,17 @@ export default async function LeadDetailPage({ params }: PageProps) {
       </section>
 
       <section className="rounded-2xl border border-smoke bg-white p-5">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">Endereço</h2>
+        <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <Field label="Endereço" value={lead.address} />
+          <Field label="Número" value={lead.addressNumber} />
+          <Field label="Bairro" value={lead.neighborhood} />
+          <Field label="CEP" value={lead.zipCode} />
+          <Field label="Complemento" value={lead.addressComplement} />
+        </dl>
+      </section>
+
+      <section className="rounded-2xl border border-smoke bg-white p-5">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">
           Qualificação
         </h2>
@@ -74,6 +83,7 @@ export default async function LeadDetailPage({ params }: PageProps) {
           <Field label="Canal" value={lead.salesChannelLabel} />
           <Field label="Investimento" value={lead.investmentRangeLabel} />
           <Field label="Frequência" value={lead.purchaseFrequencyLabel} />
+          <Field label="Tipo de loja" value={lead.storeTypeLabel} />
         </dl>
       </section>
 

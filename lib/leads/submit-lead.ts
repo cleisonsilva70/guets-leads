@@ -10,6 +10,7 @@ import {
   salesChannelLabels,
   investmentRangeLabels,
   purchaseFrequencyLabels,
+  storeTypeLabels,
 } from "@/lib/labels";
 
 export interface SubmitLeadConsultant {
@@ -52,9 +53,13 @@ export async function submitLead(input: CreateLeadRequest): Promise<SubmitLeadRe
     email: input.email,
     businessName: input.businessName,
     instagram: input.instagram ? normalizeInstagramHandle(input.instagram) : "",
-    city: input.city,
-    state: input.state,
+    address: input.address,
+    addressNumber: input.addressNumber,
+    neighborhood: input.neighborhood,
+    zipCode: input.zipCode,
+    addressComplement: input.addressComplement ?? "",
     cpfCnpj: input.cpfCnpj,
+    storeTypeLabel: input.storeType.map((type) => storeTypeLabels[type]).join(", "),
     purchasePurposeLabel: purchasePurposeLabels[input.purchasePurpose],
     segmentLabel: segmentLabels[input.segment],
     salesChannelLabel: salesChannelLabels[input.salesChannel],

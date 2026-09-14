@@ -5,6 +5,7 @@ import type {
   PurchasePurpose,
   SalesChannel,
   Segment,
+  StoreType,
 } from "@/types/lead";
 
 export const purchasePurposeLabels: Record<PurchasePurpose, string> = {
@@ -45,6 +46,12 @@ export const purchaseFrequencyLabels: Record<PurchaseFrequency, string> = {
   monthly: "Todo mês",
   as_needed: "Quando precisa repor estoque",
   first_purchase: "Primeira compra",
+};
+
+export const storeTypeLabels: Record<StoreType, string> = {
+  physical_store: "Loja física",
+  virtual_store: "Loja virtual",
+  starting_now: "Estou começando agora",
 };
 
 export const leadStatusLabels: Record<LeadStatus, string> = {

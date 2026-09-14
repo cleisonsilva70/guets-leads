@@ -3,14 +3,12 @@ import { listLeads } from "@/lib/admin/leads";
 import { listConsultants } from "@/lib/admin/consultants";
 import { leadClassificationLabels } from "@/lib/lead-scoring";
 import { investmentRangeLabels, leadStatusValues } from "@/lib/labels";
-import { brazilianStates } from "@/lib/data/brazilian-states";
 
 interface PageProps {
   searchParams: Promise<{
     consultantId?: string;
     classification?: string;
     investmentRange?: string;
-    state?: string;
     status?: string;
     campaign?: string;
     page?: string;
@@ -37,7 +35,6 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
       consultantId: sp.consultantId,
       classification: sp.classification,
       investmentRange: sp.investmentRange,
-      state: sp.state,
       status: sp.status,
       campaign: sp.campaign,
       page: sp.page ? Number(sp.page) : 1,
@@ -92,19 +89,6 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
         </select>
 
         <select
-          name="state"
-          defaultValue={sp.state ?? ""}
-          className="rounded-lg border border-smoke px-3 py-2 text-sm"
-        >
-          <option value="">Todo estado</option>
-          {brazilianStates.map((s) => (
-            <option key={s.uf} value={s.uf}>
-              {s.uf}
-            </option>
-          ))}
-        </select>
-
-        <select
           name="status"
           defaultValue={sp.status ?? ""}
           className="rounded-lg border border-smoke px-3 py-2 text-sm"
@@ -138,7 +122,7 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
             <tr>
               <th className="px-4 py-3 font-medium">Nome</th>
               <th className="px-4 py-3 font-medium">Loja</th>
-              <th className="px-4 py-3 font-medium">Cidade/UF</th>
+              <th className="px-4 py-3 font-medium">Bairro</th>
               <th className="px-4 py-3 font-medium">WhatsApp</th>
               <th className="px-4 py-3 font-medium">Investimento</th>
               <th className="px-4 py-3 font-medium">Classificação</th>
@@ -157,9 +141,7 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
                   </Link>
                 </td>
                 <td className="px-4 py-3">{lead.businessName}</td>
-                <td className="px-4 py-3">
-                  {lead.city}/{lead.state}
-                </td>
+                <td className="px-4 py-3">{lead.neighborhood}</td>
                 <td className="px-4 py-3">{lead.whatsapp}</td>
                 <td className="px-4 py-3">{lead.investmentRangeLabel}</td>
                 <td className="px-4 py-3">{lead.classification}</td>

@@ -31,6 +31,8 @@ export type PurchaseFrequency =
 
 export type LeadClassification = "hot" | "qualified" | "beginner";
 
+export type StoreType = "physical_store" | "virtual_store" | "starting_now";
+
 export type LeadStatus =
   | "new"
   | "contacted"
@@ -66,10 +68,14 @@ export type RegistrationData = {
   whatsapp: string;
   businessName: string;
   instagram: string;
-  city: string;
-  state: string;
+  address: string;
+  addressNumber: string;
+  neighborhood: string;
+  zipCode: string;
+  addressComplement: string;
   cpfCnpj: string;
   email: string;
+  storeType: StoreType[];
   consent: boolean;
 };
 
