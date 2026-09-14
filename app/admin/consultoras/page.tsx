@@ -38,8 +38,8 @@ export default async function ConsultantsPage() {
       <div>
         <h1 className="text-2xl font-bold text-ink">Consultoras</h1>
         <p className="text-sm text-muted">
-          Ordem do Round Robin segue a ordem de cadastro. Apenas consultoras ativas participam da
-          distribuição.
+          O Round Robin distribui sempre para a consultora ativa que está há mais tempo sem
+          receber um lead novo.
         </p>
       </div>
 
@@ -78,17 +78,17 @@ export default async function ConsultantsPage() {
         <table className="w-full text-sm">
           <thead className="bg-smoke/50 text-left text-muted">
             <tr>
-              <th className="px-4 py-3 font-medium">Ordem</th>
               <th className="px-4 py-3 font-medium">Nome</th>
               <th className="px-4 py-3 font-medium">WhatsApp</th>
               <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-medium">Leads recebidos</th>
+              <th className="px-4 py-3 font-medium">Última atribuição</th>
               <th className="px-4 py-3 font-medium">Ações</th>
             </tr>
           </thead>
           <tbody>
             {consultants.map((c) => (
               <tr key={c.id} className="border-t border-smoke">
-                <td className="px-4 py-3 text-muted">{c.round_robin_order}</td>
                 <td className="px-4 py-3 font-medium text-ink">{c.name}</td>
                 <td className="px-4 py-3">
                   <form action={updateWhatsappAction} className="flex items-center gap-2">
@@ -115,6 +115,10 @@ export default async function ConsultantsPage() {
                     {c.active ? "Ativa" : "Inativa"}
                   </span>
                 </td>
+                <td className="px-4 py-3">{c.leadCount}</td>
+                <td className="px-4 py-3 text-muted">
+                  {c.lastAssignedAt ? new Date(c.lastAssignedAt).toLocaleString("pt-BR") : "—"}
+                </td>
                 <td className="px-4 py-3">
                   <form action={toggleActiveAction}>
                     <input type="hidden" name="id" value={c.id} />
@@ -131,7 +135,7 @@ export default async function ConsultantsPage() {
             ))}
             {consultants.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-muted">
+                <td colSpan={6} className="px-4 py-6 text-center text-muted">
                   Nenhuma consultora cadastrada.
                 </td>
               </tr>

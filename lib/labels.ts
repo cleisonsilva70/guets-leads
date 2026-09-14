@@ -58,3 +58,9 @@ export const leadStatusLabels: Record<LeadStatus, string> = {
 };
 
 export const leadStatusOptions = Object.entries(leadStatusLabels) as [LeadStatus, string][];
+
+/**
+ * A planilha guarda o status como o texto em português direto (não o
+ * código interno) — esta lista é o que o admin usa para filtrar/editar.
+ */
+export const leadStatusValues = Object.values(leadStatusLabels);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { minimumOrderLabel } from "@/lib/config/commercial";
 import { buildWhatsappLink } from "@/lib/validation/whatsapp";
 import { WhatsappCta } from "@/components/success/WhatsappCta";
@@ -12,27 +12,40 @@ interface SuccessData {
   consultant: { name: string; whatsapp: string } | null;
 }
 
+function subscribe() {
+  return () => {};
+}
+
+function getSnapshot(): string | null {
+  try {
+    return sessionStorage.getItem("guets_success");
+  } catch {
+    return null;
+  }
+}
+
+function getServerSnapshot(): string | null {
+  return null;
+}
+
 /**
  * Recebe os dados via sessionStorage (setados pelo QuizWizard logo após o
  * POST em /api/leads) em vez de buscar no servidor por id: a planilha do
  * Google não é um banco de consulta rápida por chave, então já devolvemos
- * tudo que a tela precisa na resposta do próprio cadastro.
+ * tudo que a tela precisa na resposta do próprio cadastro. useSyncExternalStore
+ * evita mismatch de hidratação (SSR nunca tem sessionStorage).
  */
 export default function SuccessPage() {
-  const [data, setData] = useState<SuccessData | null>(null);
-  const [loaded, setLoaded] = useState(false);
+  const raw = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  useEffect(() => {
+  let data: SuccessData | null = null;
+  if (raw) {
     try {
-      const raw = sessionStorage.getItem("guets_success");
-      if (raw) setData(JSON.parse(raw));
+      data = JSON.parse(raw);
     } catch {
-      // sessionStorage indisponível (modo privado, etc.) — segue com fallback genérico.
+      // JSON inválido no sessionStorage — segue com fallback genérico.
     }
-    setLoaded(true);
-  }, []);
-
-  if (!loaded) return null;
+  }
 
   const firstName = data ? data.name.split(" ")[0] || data.name : null;
 

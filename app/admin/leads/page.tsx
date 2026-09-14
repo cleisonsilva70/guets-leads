@@ -2,9 +2,8 @@ import Link from "next/link";
 import { listLeads } from "@/lib/admin/leads";
 import { listConsultants } from "@/lib/admin/consultants";
 import { leadClassificationLabels } from "@/lib/lead-scoring";
-import { investmentRangeLabels, leadStatusLabels, leadStatusOptions } from "@/lib/labels";
+import { investmentRangeLabels, leadStatusValues } from "@/lib/labels";
 import { brazilianStates } from "@/lib/data/brazilian-states";
-import type { InvestmentRange, LeadClassification, LeadStatus } from "@/types/lead";
 
 interface PageProps {
   searchParams: Promise<{
@@ -36,10 +35,10 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
     listConsultants(),
     listLeads({
       consultantId: sp.consultantId,
-      classification: sp.classification as LeadClassification | undefined,
-      investmentRange: sp.investmentRange as InvestmentRange | undefined,
+      classification: sp.classification,
+      investmentRange: sp.investmentRange,
       state: sp.state,
-      status: sp.status as LeadStatus | undefined,
+      status: sp.status,
       campaign: sp.campaign,
       page: sp.page ? Number(sp.page) : 1,
     }),
@@ -72,8 +71,8 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
           className="rounded-lg border border-smoke px-3 py-2 text-sm"
         >
           <option value="">Toda classificação</option>
-          {Object.entries(leadClassificationLabels).map(([value, label]) => (
-            <option key={value} value={value}>
+          {Object.values(leadClassificationLabels).map((label) => (
+            <option key={label} value={label}>
               {label}
             </option>
           ))}
@@ -85,8 +84,8 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
           className="rounded-lg border border-smoke px-3 py-2 text-sm"
         >
           <option value="">Todo investimento</option>
-          {Object.entries(investmentRangeLabels).map(([value, label]) => (
-            <option key={value} value={value}>
+          {Object.values(investmentRangeLabels).map((label) => (
+            <option key={label} value={label}>
               {label}
             </option>
           ))}
@@ -111,8 +110,8 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
           className="rounded-lg border border-smoke px-3 py-2 text-sm"
         >
           <option value="">Todo status</option>
-          {leadStatusOptions.map(([value, label]) => (
-            <option key={value} value={value}>
+          {leadStatusValues.map((label) => (
+            <option key={label} value={label}>
               {label}
             </option>
           ))}
@@ -157,19 +156,17 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
                     {lead.name}
                   </Link>
                 </td>
-                <td className="px-4 py-3">{lead.business_name}</td>
+                <td className="px-4 py-3">{lead.businessName}</td>
                 <td className="px-4 py-3">
                   {lead.city}/{lead.state}
                 </td>
-                <td className="px-4 py-3">{lead.whatsapp_raw}</td>
-                <td className="px-4 py-3">{investmentRangeLabels[lead.investment_range]}</td>
-                <td className="px-4 py-3">{leadClassificationLabels[lead.lead_classification]}</td>
-                <td className="px-4 py-3">
-                  {consultants.find((c) => c.id === lead.consultant_id)?.name ?? "—"}
-                </td>
-                <td className="px-4 py-3">{lead.utm_campaign ?? "—"}</td>
-                <td className="px-4 py-3">{new Date(lead.created_at).toLocaleDateString("pt-BR")}</td>
-                <td className="px-4 py-3">{leadStatusLabels[lead.status]}</td>
+                <td className="px-4 py-3">{lead.whatsapp}</td>
+                <td className="px-4 py-3">{lead.investmentRangeLabel}</td>
+                <td className="px-4 py-3">{lead.classification}</td>
+                <td className="px-4 py-3">{lead.consultantName ?? "—"}</td>
+                <td className="px-4 py-3">{lead.utmCampaign ?? "—"}</td>
+                <td className="px-4 py-3">{new Date(lead.createdAt).toLocaleDateString("pt-BR")}</td>
+                <td className="px-4 py-3">{lead.status}</td>
               </tr>
             ))}
             {result.leads.length === 0 ? (

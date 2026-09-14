@@ -1,63 +1,77 @@
 import "server-only";
-import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import type { InvestmentRange, Lead, LeadClassification, LeadStatus } from "@/types/lead";
+import { sheetsGet, sheetsPost } from "@/lib/sheets/client";
+
+/**
+ * Lead como devolvido pelo Apps Script pro admin. Diferente de
+ * types/lead.ts (usado no quiz): aqui os campos de qualificação já vêm
+ * como texto em português (o mesmo que está na planilha), não como código
+ * interno — é o que a planilha guarda e o que o Bling também recebe.
+ */
+export interface AdminLead {
+  id: string;
+  createdAt: string;
+  name: string;
+  whatsapp: string;
+  email: string;
+  businessName: string;
+  instagram: string | null;
+  city: string;
+  state: string;
+  cpfCnpj: string;
+  purchasePurposeLabel: string;
+  segmentLabel: string;
+  salesChannelLabel: string;
+  investmentRangeLabel: string;
+  purchaseFrequencyLabel: string;
+  leadScore: number;
+  classification: string;
+  consultantId: string | null;
+  consultantName: string | null;
+  consultantWhatsapp: string | null;
+  utmSource: string | null;
+  utmMedium: string | null;
+  utmCampaign: string | null;
+  utmContent: string | null;
+  utmTerm: string | null;
+  fbclid: string | null;
+  landingPage: string | null;
+  status: string;
+}
 
 export interface LeadListFilters {
   consultantId?: string;
-  classification?: LeadClassification;
-  investmentRange?: InvestmentRange;
+  classification?: string;
+  investmentRange?: string;
   state?: string;
-  status?: LeadStatus;
+  status?: string;
   campaign?: string;
   page?: number;
 }
 
-const PAGE_SIZE = 25;
-
 export interface LeadListResult {
-  leads: Lead[];
+  leads: AdminLead[];
   total: number;
   page: number;
   pageCount: number;
 }
 
 export async function listLeads(filters: LeadListFilters): Promise<LeadListResult> {
-  const supabase = getSupabaseAdmin();
-  const page = filters.page && filters.page > 0 ? filters.page : 1;
-  const from = (page - 1) * PAGE_SIZE;
-  const to = from + PAGE_SIZE - 1;
-
-  let query = supabase.from("leads").select("*", { count: "exact" }).order("created_at", {
-    ascending: false,
+  return sheetsGet<LeadListResult>("list_leads", {
+    consultantId: filters.consultantId,
+    classification: filters.classification,
+    investmentRange: filters.investmentRange,
+    state: filters.state,
+    status: filters.status,
+    campaign: filters.campaign,
+    page: filters.page,
   });
-
-  if (filters.consultantId) query = query.eq("consultant_id", filters.consultantId);
-  if (filters.classification) query = query.eq("lead_classification", filters.classification);
-  if (filters.investmentRange) query = query.eq("investment_range", filters.investmentRange);
-  if (filters.state) query = query.eq("state", filters.state);
-  if (filters.status) query = query.eq("status", filters.status);
-  if (filters.campaign) query = query.ilike("utm_campaign", `%${filters.campaign}%`);
-
-  const { data, count, error } = await query.range(from, to);
-  if (error) throw new Error(error.message);
-
-  const total = count ?? 0;
-  return {
-    leads: data ?? [],
-    total,
-    page,
-    pageCount: Math.max(1, Math.ceil(total / PAGE_SIZE)),
-  };
 }
 
-export async function getLeadById(id: string): Promise<Lead | null> {
-  const supabase = getSupabaseAdmin();
-  const { data } = await supabase.from("leads").select("*").eq("id", id).single();
-  return data ?? null;
+export async function getLeadById(id: string): Promise<AdminLead | null> {
+  const result = await sheetsGet<{ lead: AdminLead | null }>("get_lead", { leadId: id });
+  return result.lead;
 }
 
-export async function updateLeadStatus(id: string, status: LeadStatus): Promise<void> {
-  const supabase = getSupabaseAdmin();
-  const { error } = await supabase.from("leads").update({ status }).eq("id", id);
-  if (error) throw new Error(error.message);
+export async function updateLeadStatus(id: string, status: string): Promise<void> {
+  await sheetsPost("update_lead_status", { leadId: id, status });
 }

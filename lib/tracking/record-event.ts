@@ -1,5 +1,5 @@
 import "server-only";
-import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { sheetsPost } from "@/lib/sheets/client";
 import type { UtmParams } from "@/types/lead";
 
 export interface RecordEventInput extends UtmParams {
@@ -11,25 +11,24 @@ export interface RecordEventInput extends UtmParams {
   metadata?: Record<string, unknown>;
 }
 
-/** Grava um evento leve de funil — nunca lança para o caller (tracking não pode derrubar o fluxo principal). */
+/** Grava um evento leve de funil na aba "Eventos" — nunca lança para o caller (tracking não pode derrubar o fluxo principal). */
 export async function recordFunnelEvent(input: RecordEventInput): Promise<void> {
   try {
-    const supabase = getSupabaseAdmin();
-    await supabase.from("funnel_events").insert({
-      event_name: input.eventName,
-      session_id: input.sessionId,
-      lead_id: input.leadId ?? null,
-      step: input.step ?? null,
+    await sheetsPost("submit_event", {
+      eventName: input.eventName,
+      sessionId: input.sessionId,
+      leadId: input.leadId ?? "",
+      step: input.step ?? "",
       metadata: input.metadata ?? {},
-      utm_source: input.utm_source ?? null,
-      utm_medium: input.utm_medium ?? null,
-      utm_campaign: input.utm_campaign ?? null,
-      utm_content: input.utm_content ?? null,
-      utm_term: input.utm_term ?? null,
-      fbclid: input.fbclid ?? null,
-      landing_page: input.landing_page ?? null,
+      utm_source: input.utm_source ?? "",
+      utm_medium: input.utm_medium ?? "",
+      utm_campaign: input.utm_campaign ?? "",
+      utm_content: input.utm_content ?? "",
+      utm_term: input.utm_term ?? "",
+      fbclid: input.fbclid ?? "",
+      landing_page: input.landing_page ?? "",
     });
   } catch (error) {
-    console.error("Falha ao gravar funnel_event", error);
+    console.error("Falha ao gravar evento de funil", error);
   }
 }
