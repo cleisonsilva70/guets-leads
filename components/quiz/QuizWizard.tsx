@@ -252,7 +252,7 @@ export function QuizWizard() {
       return (
         <QuizScreen
           title="Vale a pena repensar esse valor!"
-          subtitle={`Com ${minimumOrderLabel} você já sai daqui com dezenas de peças prontas pra revender — dá pra montar uma vitrine completa e começar a lucrar já no primeiro pedido. Muita revendedora de sucesso começou exatamente com esse valor. Bora dar essa chance pro seu negócio?`}
+          subtitle={`Com ${minimumOrderLabel} você já monta um leque ótimo de peças pra começar — e, se preferir, nossas consultoras te ajudam a fechar esse pedido inicial com as peças mais vendidas. Bora dar essa chance pro seu negócio?`}
         >
           <Button onClick={handleReconsiderMinimumOrder}>QUERO REPENSAR MEU PEDIDO</Button>
           <a href={linksConfig.instagramUrl} target="_blank" rel="noreferrer">
