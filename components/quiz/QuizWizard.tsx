@@ -103,6 +103,10 @@ export function QuizWizard() {
     setScreen("segment");
   }
 
+  function handleReconsiderMinimumOrder() {
+    setScreen("minimum_order");
+  }
+
   function handleSegment(value: Segment) {
     setAnswers((a) => ({ ...a, segment: value }));
     goToStep("channel", "segment", value);
@@ -247,11 +251,12 @@ export function QuizWizard() {
     case "minimum_order_disqualified":
       return (
         <QuizScreen
-          title="Valeu pelo carinho com a Guets!"
-          subtitle={`Hoje o pedido mínimo no atacado é de ${minimumOrderLabel} — então talvez ainda não seja o momento certo, e tudo bem! Fica de olho na gente: assim que fizer sentido pra você, vamos adorar te ajudar a montar seu primeiro pedido.`}
+          title="Vale a pena repensar esse valor!"
+          subtitle={`Com ${minimumOrderLabel} você já sai daqui com dezenas de peças prontas pra revender — dá pra montar uma vitrine completa e começar a lucrar já no primeiro pedido. Muita revendedora de sucesso começou exatamente com esse valor. Bora dar essa chance pro seu negócio?`}
         >
+          <Button onClick={handleReconsiderMinimumOrder}>QUERO REPENSAR MEU PEDIDO</Button>
           <a href={linksConfig.instagramUrl} target="_blank" rel="noreferrer">
-            <Button variant="secondary">ACOMPANHAR A MARCA NO INSTAGRAM</Button>
+            <Button variant="ghost">POR ENQUANTO, SÓ QUERO CONHECER A MARCA</Button>
           </a>
         </QuizScreen>
       );
