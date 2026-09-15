@@ -1,10 +1,12 @@
 /**
  * Guets Leads — backend em Google Apps Script.
  *
- * Serve dois papéis:
+ * Serve três papéis:
  *   1. Recebe cadastros do site (ação "submit_lead") e roda o Round Robin.
  *   2. Serve o painel /admin do site (listar leads, métricas, gerenciar
  *      consultoras) — todas as outras ações abaixo.
+ *   3. Replica cada lead novo pra planilha principal da empresa (ver
+ *      MAIN_SPREADSHEET_ID/MAIN_SHEET_GID), que já alimenta o Bling.
  *
  * ── Planilha ────────────────────────────────────────────────────────────
  * Três abas:
@@ -49,6 +51,16 @@ const LEADS_SHEET_NAME = "Leads";
 const CONSULTANTS_SHEET_NAME = "Consultoras";
 const EVENTS_SHEET_NAME = "Eventos";
 const PAGE_SIZE = 25;
+
+/**
+ * Planilha principal da empresa (a que já alimenta o Bling via
+ * ManyChat/Wix). A aba de destino lá tem exatamente os mesmos cabeçalhos
+ * de LEADS_HEADERS, então cada lead novo é replicado com a mesma linha,
+ * sem remapear nada. Precisa que a conta que roda este Apps Script tenha
+ * acesso de Editor nessa planilha (compartilhada pelo administrador dela).
+ */
+const MAIN_SPREADSHEET_ID = "10W0tLqo2xc5QCHhZ9_HzjduB66RP91TS4Bri40LDiiQ";
+const MAIN_SHEET_GID = 1992594130;
 
 const LEADS_HEADERS = [
   "LeadID", "DataHora", "Nome", "WhatsApp", "WhatsAppNormalizado", "Email",
@@ -185,6 +197,22 @@ function sanitizeRow(row) {
   return row.map(sanitizeForSheet);
 }
 
+/**
+ * Replica a linha do lead na planilha principal da empresa, pra ela seguir
+ * pro Bling do mesmo jeito que os leads dos outros sites. Nunca deve
+ * derrubar o cadastro em si: se a planilha principal estiver inacessível
+ * (permissão revogada, aba renomeada, etc.) o lead já está salvo na nossa
+ * planilha de qualquer forma, então só registra o erro e segue.
+ */
+function replicateToMainSpreadsheet(row) {
+  try {
+    const mainSheet = SpreadsheetApp.openById(MAIN_SPREADSHEET_ID).getSheetById(MAIN_SHEET_GID);
+    mainSheet.appendRow(row);
+  } catch (err) {
+    console.error("Falha ao replicar lead para a planilha principal: " + (err && err.message ? err.message : err));
+  }
+}
+
 function sheetToObjects(sheet, headers) {
   const data = sheet.getDataRange().getValues();
   const rows = [];
@@ -300,7 +328,9 @@ function submitLead(payload) {
     }
   });
 
-  leadsSheet.appendRow(sanitizeRow(row));
+  const sanitizedRow = sanitizeRow(row);
+  leadsSheet.appendRow(sanitizedRow);
+  replicateToMainSpreadsheet(sanitizedRow);
 
   return {
     leadId: leadId,
