@@ -54,10 +54,21 @@ const PAGE_SIZE = 25;
 
 /**
  * Planilha principal da empresa (a que já alimenta o Bling via
- * ManyChat/Wix). A aba de destino lá tem exatamente os mesmos cabeçalhos
- * de LEADS_HEADERS, então cada lead novo é replicado com a mesma linha,
- * sem remapear nada. Precisa que a conta que roda este Apps Script tenha
- * acesso de Editor nessa planilha (compartilhada pelo administrador dela).
+ * ManyChat/Wix). A ordem de colunas lá é DIFERENTE da nossa — cada lead
+ * novo é remapeado campo a campo em buildMainSpreadsheetRow(), não
+ * reaproveita a linha da nossa planilha. Precisa que a conta que roda
+ * este Apps Script tenha acesso de Editor nessa planilha (compartilhada
+ * pelo administrador dela).
+ *
+ * Cabeçalhos de lá, nesta ordem exata:
+ *   Carimbo | Nome | Instagram | CPF/CNPJ | Endereço | Número | Bairro |
+ *   CEP | Complemento | E-mail | Celular | Tipo da loja | Consultora |
+ *   Classificacao | Segmento | FaixaInvestimento | FrequenciaCompra |
+ *   Finalidade | CanalVenda | LeadID | Status Bling | Detalhe Bling
+ *
+ * As duas últimas (Status Bling / Detalhe Bling) ficam em branco aqui —
+ * são preenchidas pelo processo deles depois que o Bling recebe o
+ * cadastro, não por nós.
  */
 const MAIN_SPREADSHEET_ID = "10W0tLqo2xc5QCHhZ9_HzjduB66RP91TS4Bri40LDiiQ";
 const MAIN_SHEET_GID = 1992594130;
@@ -198,14 +209,48 @@ function sanitizeRow(row) {
 }
 
 /**
- * Replica a linha do lead na planilha principal da empresa, pra ela seguir
- * pro Bling do mesmo jeito que os leads dos outros sites. Nunca deve
- * derrubar o cadastro em si: se a planilha principal estiver inacessível
+ * Monta a linha no formato da planilha principal da empresa — ordem de
+ * colunas totalmente diferente da nossa (ver comentário de
+ * MAIN_SPREADSHEET_ID), então mapeia campo a campo em vez de reaproveitar
+ * a linha da nossa planilha.
+ */
+function buildMainSpreadsheetRow(payload, consultant, leadId) {
+  return [
+    new Date(), // Carimbo
+    payload.name || "", // Nome
+    payload.instagram || "", // Instagram
+    payload.cpfCnpj || "", // CPF/CNPJ
+    payload.address || "", // Endereço
+    payload.addressNumber || "", // Número
+    payload.neighborhood || "", // Bairro
+    payload.zipCode || "", // CEP
+    payload.addressComplement || "", // Complemento
+    payload.email || "", // E-mail
+    payload.whatsapp || "", // Celular
+    payload.storeTypeLabel || "", // Tipo da loja
+    consultant ? consultant.name : "", // Consultora
+    payload.leadClassification || "", // Classificacao
+    payload.segmentLabel || "", // Segmento
+    payload.investmentRangeLabel || "", // FaixaInvestimento
+    payload.purchaseFrequencyLabel || "", // FrequenciaCompra
+    payload.purchasePurposeLabel || "", // Finalidade
+    payload.salesChannelLabel || "", // CanalVenda
+    leadId, // LeadID
+    "", // Status Bling — preenchido pelo processo deles
+    "", // Detalhe Bling — preenchido pelo processo deles
+  ];
+}
+
+/**
+ * Replica o lead na planilha principal da empresa, pra ele seguir pro
+ * Bling do mesmo jeito que os leads dos outros sites. Nunca deve derrubar
+ * o cadastro em si: se a planilha principal estiver inacessível
  * (permissão revogada, aba renomeada, etc.) o lead já está salvo na nossa
  * planilha de qualquer forma, então só registra o erro e segue.
  */
-function replicateToMainSpreadsheet(row) {
+function replicateToMainSpreadsheet(payload, consultant, leadId) {
   try {
+    const row = sanitizeRow(buildMainSpreadsheetRow(payload, consultant, leadId));
     const mainSheet = SpreadsheetApp.openById(MAIN_SPREADSHEET_ID).getSheetById(MAIN_SHEET_GID);
     mainSheet.appendRow(row);
   } catch (err) {
@@ -328,9 +373,8 @@ function submitLead(payload) {
     }
   });
 
-  const sanitizedRow = sanitizeRow(row);
-  leadsSheet.appendRow(sanitizedRow);
-  replicateToMainSpreadsheet(sanitizedRow);
+  leadsSheet.appendRow(sanitizeRow(row));
+  replicateToMainSpreadsheet(payload, consultant, leadId);
 
   return {
     leadId: leadId,
