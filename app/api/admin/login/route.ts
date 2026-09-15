@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ADMIN_SESSION_COOKIE, createAdminSessionToken } from "@/lib/auth/admin-session";
+import { constantTimeEqual } from "@/lib/auth/constant-time-equal";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -10,7 +11,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "admin_not_configured" }, { status: 500 });
   }
 
-  if (password !== expected) {
+  if (!(await constantTimeEqual(password, expected))) {
     return NextResponse.json({ error: "invalid_password" }, { status: 401 });
   }
 

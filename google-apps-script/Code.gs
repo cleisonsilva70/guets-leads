@@ -115,10 +115,29 @@ function doPost(e) {
   }
 }
 
+/**
+ * Comparação em tempo constante: um `!==` normal sai mais rápido no
+ * primeiro caractere diferente, o que em teoria dá pra um atacante medir e
+ * ir descobrindo o token caractere por caractere. Faz o hash dos dois lados
+ * primeiro (assim o tamanho fica sempre igual, 32 bytes) e só então compara
+ * byte a byte sem interromper cedo.
+ */
+function constantTimeEqualBytes(a, b) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
+  return diff === 0;
+}
+
+function sha256Bytes(str) {
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, str, Utilities.Charset.UTF_8);
+}
+
 function checkToken(token) {
   const expected = PropertiesService.getScriptProperties().getProperty("ADMIN_TOKEN");
   if (!expected) throw new Error("ADMIN_TOKEN não configurado nas Propriedades do script.");
-  if (token !== expected) throw new Error("token inválido");
+  const isValid = typeof token === "string" && constantTimeEqualBytes(sha256Bytes(token), sha256Bytes(expected));
+  if (!isValid) throw new Error("token inválido");
 }
 
 function jsonResponse(obj) {
@@ -143,6 +162,27 @@ function getSheet(name) {
  */
 function asText(value) {
   return value === null || value === undefined || value === "" ? "" : String(value);
+}
+
+/**
+ * Um valor de texto começando com =, +, - ou @ é interpretado como fórmula
+ * pelo Sheets — inclusive quando escrito via setValue()/appendRow() pela
+ * API, não só quando digitado manualmente. Vários campos que chegam aqui
+ * (nome, endereço, UTMs da própria URL) vêm de um formulário público sem
+ * curadoria nenhuma, então isso é uma injeção real: alguém poderia mandar
+ * "=IMPORTXML(...)" como nome da loja e a fórmula rodaria de verdade
+ * quando a consultora abrisse a planilha. Prefixar com aspas simples faz o
+ * Sheets tratar como texto literal, do mesmo jeito que trataria uma
+ * digitação manual começando com aspas simples.
+ */
+function sanitizeForSheet(value) {
+  if (typeof value !== "string") return value;
+  if (/^[=+\-@\t\r]/.test(value)) return "'" + value;
+  return value;
+}
+
+function sanitizeRow(row) {
+  return row.map(sanitizeForSheet);
 }
 
 function sheetToObjects(sheet, headers) {
@@ -260,7 +300,7 @@ function submitLead(payload) {
     }
   });
 
-  leadsSheet.appendRow(row);
+  leadsSheet.appendRow(sanitizeRow(row));
 
   return {
     leadId: leadId,
@@ -293,7 +333,7 @@ function submitEvent(payload) {
       default: return "";
     }
   });
-  sheet.appendRow(row);
+  sheet.appendRow(sanitizeRow(row));
   return { ok: true };
 }
 
@@ -323,7 +363,7 @@ function listConsultants() {
 function createConsultant(payload) {
   const sheet = getSheet(CONSULTANTS_SHEET_NAME);
   const id = Utilities.getUuid();
-  sheet.appendRow([id, payload.name || "", payload.whatsapp || "", true, ""]);
+  sheet.appendRow(sanitizeRow([id, payload.name || "", payload.whatsapp || "", true, ""]));
   return { ok: true, id: id };
 }
 
@@ -333,8 +373,8 @@ function updateConsultant(payload) {
   for (let i = 1; i < data.length; i++) {
     if (String(data[i][0]) === String(payload.id)) {
       const rowNum = i + 1;
-      if (payload.name !== undefined) sheet.getRange(rowNum, 2).setValue(payload.name);
-      if (payload.whatsapp !== undefined) sheet.getRange(rowNum, 3).setValue(payload.whatsapp);
+      if (payload.name !== undefined) sheet.getRange(rowNum, 2).setValue(sanitizeForSheet(payload.name));
+      if (payload.whatsapp !== undefined) sheet.getRange(rowNum, 3).setValue(sanitizeForSheet(payload.whatsapp));
       if (payload.active !== undefined) sheet.getRange(rowNum, 4).setValue(payload.active === true);
       return { ok: true };
     }

@@ -1,4 +1,5 @@
 import "server-only";
+import { constantTimeEqual } from "./constant-time-equal";
 
 export const ADMIN_SESSION_COOKIE = "guets_admin_session";
 const MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 dias
@@ -47,5 +48,5 @@ export async function isValidAdminSessionToken(token: string | undefined | null)
   if (!Number.isFinite(issuedAtMs) || Date.now() - issuedAtMs > MAX_AGE_MS) return false;
 
   const expected = await hmac(issuedAt);
-  return expected === signature;
+  return constantTimeEqual(expected, signature);
 }
