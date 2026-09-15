@@ -18,12 +18,22 @@ export function fireMetaPixelEvent(eventName: string, params?: Record<string, un
   window.fbq("trackCustom", eventName, params ?? {});
 }
 
+/**
+ * `eventId` deve ser o mesmo enviado pela Conversions API (server-side)
+ * pro mesmo evento — é assim que o Meta deduplica os dois lados em vez de
+ * contar a mesma conversão duas vezes.
+ */
 export function fireMetaPixelStandardEvent(
   eventName: "PageView" | "ViewContent" | "Lead" | "Contact",
-  params?: Record<string, unknown>
+  params?: Record<string, unknown>,
+  eventId?: string
 ): void {
   if (typeof window === "undefined" || typeof window.fbq !== "function") return;
-  window.fbq("track", eventName, params ?? {});
+  if (eventId) {
+    window.fbq("track", eventName, params ?? {}, { eventID: eventId });
+  } else {
+    window.fbq("track", eventName, params ?? {});
+  }
 }
 
 export function fireGa4Event(eventName: string, params?: Record<string, unknown>): void {

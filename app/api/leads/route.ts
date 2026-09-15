@@ -3,6 +3,15 @@ import { createLeadRequestSchema } from "@/lib/validation/schemas";
 import { submitLead } from "@/lib/leads/submit-lead";
 import { recordFunnelEvent } from "@/lib/tracking/record-event";
 import { FUNNEL_EVENTS } from "@/lib/tracking/events";
+import { sendMetaLeadEvent } from "@/lib/tracking/meta-conversions-api";
+import { normalizeWhatsapp } from "@/lib/validation/whatsapp";
+
+/** Lê um cookie específico do header Cookie bruto da requisição. */
+function readCookie(cookieHeader: string | null, name: string): string | null {
+  if (!cookieHeader) return null;
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${name}=([^;]+)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
 
 /**
  * Único endpoint que grava um lead comercial completo. Toda a regra de
@@ -57,6 +66,23 @@ export async function POST(request: Request) {
           metadata: { consultantName: result.consultant.name },
         });
       }
+
+      // Manda o mesmo evento "Lead" pro Meta via Conversions API (servidor),
+      // com o mesmo leadId como event_id do Pixel client-side (ver
+      // handleRegistrationSubmit em QuizWizard.tsx) — o Meta deduplica os
+      // dois lados por esse id, então isso só aumenta a chance de a
+      // conversão ser contabilizada, nunca conta em dobro.
+      const cookieHeader = request.headers.get("cookie");
+      await sendMetaLeadEvent({
+        eventId: result.leadId,
+        email: parsed.data.email,
+        whatsappNormalizado: normalizeWhatsapp(parsed.data.whatsapp),
+        eventSourceUrl: parsed.data.landing_page || "https://guets-leads.vercel.app/quiz",
+        clientIp: request.headers.get("x-forwarded-for"),
+        userAgent: request.headers.get("user-agent"),
+        fbp: readCookie(cookieHeader, "_fbp"),
+        fbc: readCookie(cookieHeader, "_fbc"),
+      });
     });
 
     return NextResponse.json({

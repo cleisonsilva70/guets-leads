@@ -188,7 +188,7 @@ export function QuizWizard() {
         })
       );
 
-      fireMetaPixelStandardEvent("Lead");
+      fireMetaPixelStandardEvent("Lead", {}, data.leadId);
       fireMetaPixelEvent("QualifiedLead");
       fireGa4Event("registration_complete");
 
