@@ -27,11 +27,7 @@ export const segmentOptions: QuizOption<Segment>[] = [
 
 export const salesChannelOptions: QuizOption<SalesChannel>[] = [
   { value: "physical_store", label: "Loja física" },
-  { value: "instagram", label: "Instagram" },
-  { value: "whatsapp", label: "WhatsApp" },
-  { value: "own_site", label: "Site próprio" },
-  { value: "marketplace", label: "Marketplace" },
-  { value: "multiple", label: "Mais de um desses canais" },
+  { value: "online", label: "Só online" },
 ];
 
 export const investmentRangeOptions: QuizOption<InvestmentRange>[] = [

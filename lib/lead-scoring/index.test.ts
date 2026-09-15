@@ -15,11 +15,11 @@ test("calculateLeadScore soma os quatro pesos", () => {
 test("calculateLeadScore - pior cenário possível", () => {
   const score = calculateLeadScore({
     segment: "not_selling_yet", // 5
-    salesChannel: "whatsapp", // 10
+    salesChannel: "online", // 15
     investmentRange: "r1200_2000", // 10
     purchaseFrequency: "first_purchase", // 5
   });
-  assert.equal(score, 30);
+  assert.equal(score, 35);
 });
 
 test("classifyLeadScore - limites das faixas (seção 26 do briefing)", () => {

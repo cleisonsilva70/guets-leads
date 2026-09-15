@@ -7,14 +7,7 @@ export const purchasePurposeSchema = z.enum(["reseller", "starting_now", "person
 
 export const segmentSchema = z.enum(["fitness", "feminina", "other", "not_selling_yet"]);
 
-export const salesChannelSchema = z.enum([
-  "physical_store",
-  "instagram",
-  "whatsapp",
-  "own_site",
-  "marketplace",
-  "multiple",
-]);
+export const salesChannelSchema = z.enum(["physical_store", "online"]);
 
 export const investmentRangeSchema = z.enum([
   "r1200_2000",

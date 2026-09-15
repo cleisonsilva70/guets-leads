@@ -279,7 +279,7 @@ export function QuizWizard() {
         <QuizScreen
           step={STEP_NUMBER.channel}
           totalSteps={TOTAL_STEPS}
-          title="Onde você vende ou pretende vender suas peças?"
+          title="Show! E qual é o tipo da sua loja?"
         >
           {salesChannelOptions.map((opt) => (
             <OptionButton key={opt.value} label={opt.label} onClick={() => handleChannel(opt.value)} />

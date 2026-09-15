@@ -2,13 +2,7 @@ export type PurchasePurpose = "reseller" | "starting_now" | "personal_use";
 
 export type Segment = "fitness" | "feminina" | "other" | "not_selling_yet";
 
-export type SalesChannel =
-  | "physical_store"
-  | "instagram"
-  | "whatsapp"
-  | "own_site"
-  | "marketplace"
-  | "multiple";
+export type SalesChannel = "physical_store" | "online";
 
 export type InvestmentRange =
   | "r1200_2000"

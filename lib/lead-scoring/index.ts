@@ -22,11 +22,7 @@ export const scoringWeights = {
 
   salesChannel: {
     physical_store: 20,
-    instagram: 15,
-    multiple: 20,
-    whatsapp: 10,
-    own_site: 10,
-    marketplace: 10,
+    online: 15,
   } satisfies Record<SalesChannel, number>,
 
   investmentRange: {

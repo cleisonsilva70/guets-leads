@@ -23,11 +23,7 @@ export const segmentLabels: Record<Segment, string> = {
 
 export const salesChannelLabels: Record<SalesChannel, string> = {
   physical_store: "Loja física",
-  instagram: "Instagram",
-  whatsapp: "WhatsApp",
-  own_site: "Site próprio",
-  marketplace: "Marketplace",
-  multiple: "Mais de um canal",
+  online: "Só online",
 };
 
 export const investmentRangeLabels: Record<InvestmentRange, string> = {
