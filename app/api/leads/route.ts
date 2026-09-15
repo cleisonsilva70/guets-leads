@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { createLeadRequestSchema } from "@/lib/validation/schemas";
 import { submitLead } from "@/lib/leads/submit-lead";
 import { recordFunnelEvent } from "@/lib/tracking/record-event";
@@ -29,28 +29,35 @@ export async function POST(request: Request) {
   try {
     const result = await submitLead(parsed.data);
 
-    await recordFunnelEvent({
-      eventName: FUNNEL_EVENTS.leadCreated,
-      sessionId: parsed.data.sessionId,
-      leadId: result.leadId,
-      utm_source: parsed.data.utm_source,
-      utm_medium: parsed.data.utm_medium,
-      utm_campaign: parsed.data.utm_campaign,
-      utm_content: parsed.data.utm_content,
-      utm_term: parsed.data.utm_term,
-      fbclid: parsed.data.fbclid,
-      landing_page: parsed.data.landing_page,
-      metadata: { isNew: result.isNew },
-    });
-
-    if (result.consultant) {
+    // O lead já foi gravado e é o que o usuário está esperando ver na tela;
+    // os eventos de tracking são só analytics, então rodam depois da
+    // resposta em vez de mais duas chamadas sequenciais à planilha (cada
+    // uma com o mesmo custo fixo de latência do Apps Script) atrasando o
+    // "ENVIANDO..." do formulário.
+    after(async () => {
       await recordFunnelEvent({
-        eventName: FUNNEL_EVENTS.consultantAssigned,
+        eventName: FUNNEL_EVENTS.leadCreated,
         sessionId: parsed.data.sessionId,
         leadId: result.leadId,
-        metadata: { consultantName: result.consultant.name },
+        utm_source: parsed.data.utm_source,
+        utm_medium: parsed.data.utm_medium,
+        utm_campaign: parsed.data.utm_campaign,
+        utm_content: parsed.data.utm_content,
+        utm_term: parsed.data.utm_term,
+        fbclid: parsed.data.fbclid,
+        landing_page: parsed.data.landing_page,
+        metadata: { isNew: result.isNew },
       });
-    }
+
+      if (result.consultant) {
+        await recordFunnelEvent({
+          eventName: FUNNEL_EVENTS.consultantAssigned,
+          sessionId: parsed.data.sessionId,
+          leadId: result.leadId,
+          metadata: { consultantName: result.consultant.name },
+        });
+      }
+    });
 
     return NextResponse.json({
       leadId: result.leadId,

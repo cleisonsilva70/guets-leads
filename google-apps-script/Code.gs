@@ -86,14 +86,25 @@ function doGet(e) {
 }
 
 function doPost(e) {
-  const lock = LockService.getScriptLock();
-  lock.waitLock(30000);
   try {
     const payload = JSON.parse(e.postData.contents);
     checkToken(payload.token);
     const action = payload.action;
 
-    if (action === "submit_lead") return jsonResponse(submitLead(payload));
+    // Só submit_lead precisa do lock global (decide + grava a atribuição do
+    // Round Robin de forma atômica). As outras ações não competem por esse
+    // mesmo recurso, então travá-las junto só faz todo mundo esperar na fila
+    // atrás de qualquer cadastro em andamento — inclusive os eventos leves de
+    // tracking, que disparam a cada tela do quiz.
+    if (action === "submit_lead") {
+      const lock = LockService.getScriptLock();
+      lock.waitLock(30000);
+      try {
+        return jsonResponse(submitLead(payload));
+      } finally {
+        lock.releaseLock();
+      }
+    }
     if (action === "submit_event") return jsonResponse(submitEvent(payload));
     if (action === "create_consultant") return jsonResponse(createConsultant(payload));
     if (action === "update_consultant") return jsonResponse(updateConsultant(payload));
@@ -101,8 +112,6 @@ function doPost(e) {
     return jsonResponse({ error: "ação desconhecida: " + action }, 400);
   } catch (err) {
     return jsonResponse({ error: String(err && err.message ? err.message : err) }, 500);
-  } finally {
-    lock.releaseLock();
   }
 }
 

@@ -1,4 +1,4 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { listConsultants, createConsultant, updateConsultant } from "@/lib/admin/consultants";
 import { formatWhatsappInput } from "@/lib/validation/whatsapp";
 
@@ -9,6 +9,7 @@ async function createConsultantAction(formData: FormData) {
   if (!name || !whatsapp) return;
 
   await createConsultant({ name, whatsapp });
+  updateTag("sheets");
   revalidatePath("/admin/consultoras");
 }
 
@@ -17,6 +18,7 @@ async function toggleActiveAction(formData: FormData) {
   const id = String(formData.get("id"));
   const active = formData.get("active") === "true";
   await updateConsultant(id, { active: !active });
+  updateTag("sheets");
   revalidatePath("/admin/consultoras");
   revalidatePath("/admin");
 }
@@ -27,6 +29,7 @@ async function updateWhatsappAction(formData: FormData) {
   const whatsapp = String(formData.get("whatsapp") || "").trim();
   if (!whatsapp) return;
   await updateConsultant(id, { whatsapp });
+  updateTag("sheets");
   revalidatePath("/admin/consultoras");
 }
 

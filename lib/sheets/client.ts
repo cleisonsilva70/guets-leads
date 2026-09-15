@@ -25,9 +25,18 @@ async function parseResponse<T>(response: Response): Promise<T> {
   return data;
 }
 
+/**
+ * Cada chamada ao Apps Script custa uns 2-4s de overhead fixo do Google,
+ * mesmo pra uma leitura simples — não tem como evitar isso, é inerente à
+ * plataforma. O que dá pra evitar é repetir essa espera a cada navegação no
+ * admin: as leituras (GET) ficam em cache por alguns segundos, e qualquer
+ * escrita que precise refletir na hora (ver revalidateTag("sheets") nos
+ * server actions do admin) invalida esse cache imediatamente.
+ */
 export async function sheetsGet<T>(
   action: string,
-  params: Record<string, string | number | undefined> = {}
+  params: Record<string, string | number | undefined> = {},
+  options: { revalidate?: number } = {}
 ): Promise<T> {
   const { url, token } = getConfig();
   const search = new URLSearchParams({ action, token });
@@ -36,7 +45,7 @@ export async function sheetsGet<T>(
   }
   const response = await fetch(`${url}?${search.toString()}`, {
     method: "GET",
-    cache: "no-store",
+    next: { revalidate: options.revalidate ?? 15, tags: ["sheets"] },
   });
   return parseResponse<T>(response);
 }

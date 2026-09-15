@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { getLeadById, updateLeadStatus } from "@/lib/admin/leads";
 import { leadStatusValues } from "@/lib/labels";
 import { instagramProfileUrl } from "@/lib/validation/instagram";
@@ -26,6 +26,7 @@ export default async function LeadDetailPage({ params }: PageProps) {
     "use server";
     const status = String(formData.get("status"));
     await updateLeadStatus(id, status);
+    updateTag("sheets");
     revalidatePath(`/admin/leads/${id}`);
   }
 
