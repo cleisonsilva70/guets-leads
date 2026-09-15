@@ -5,11 +5,11 @@ import Image from "next/image";
 import { motion, type PanInfo } from "framer-motion";
 
 const teaserImages = [
-  { src: "/products/teaser/conjunto-lais-cinza.jpg", alt: "Conjunto fitness Guets, cinza" },
-  { src: "/products/teaser/conjunto-karla-azul.jpg", alt: "Conjunto fitness Guets, azul marinho" },
-  { src: "/products/teaser/conjunto-camilla-vermelho.jpg", alt: "Conjunto fitness Guets, vermelho" },
-  { src: "/products/teaser/macacao-celebrar-bordo.jpg", alt: "Macacão fitness Guets, bordô" },
-  { src: "/products/teaser/conjunto-lais-lilas.jpg", alt: "Conjunto fitness Guets, lilás" },
+  { src: "/products/teaser/1.png", alt: "Peça de moda fitness Guets 1" },
+  { src: "/products/teaser/2.png", alt: "Peça de moda fitness Guets 2" },
+  { src: "/products/teaser/3.png", alt: "Peça de moda fitness Guets 3" },
+  { src: "/products/teaser/4.png", alt: "Peça de moda fitness Guets 4" },
+  { src: "/products/teaser/5.png", alt: "Peça de moda fitness Guets 5" },
 ];
 
 const AUTO_ADVANCE_MS = 4200;
@@ -56,7 +56,7 @@ export function ProductTeaser() {
   return (
     <div className="mx-auto w-full max-w-[280px] sm:max-w-[340px] lg:mx-0">
       <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-white/40">
-        Algumas peças da nossa coleção
+        Conheça nossa Coleção Gabriela
       </p>
 
       <motion.div
