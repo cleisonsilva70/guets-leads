@@ -331,6 +331,7 @@ export function QuizWizard() {
         <QuizScreen
           step={STEP_NUMBER.registration}
           totalSteps={TOTAL_STEPS}
+          banner="Formulário oficial de cadastro Guets"
           title="Complete seus dados"
           subtitle={`Pedido mínimo: ${minimumOrderLabel}. Leva menos de 1 minuto.`}
         >
