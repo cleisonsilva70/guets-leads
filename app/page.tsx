@@ -14,7 +14,7 @@ export default function LandingPage() {
           alt="Guets"
           width={160}
           height={98}
-          className="h-8 w-auto"
+          className="h-12 w-auto"
           priority
         />
 
