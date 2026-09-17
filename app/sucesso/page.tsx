@@ -77,7 +77,7 @@ export default function SuccessPage() {
                 consultantName={data.consultant.name}
                 href={buildWhatsappLink(
                   data.consultant.whatsapp,
-                  `Olá ${data.consultant.name}! Sou ${data.name}, da ${data.businessName}. Acabei de concluir meu cadastro de atacado pelo site e recebi seu contato para atendimento. Estou ciente de que o pedido mínimo é de ${minimumOrderLabel} e quero conhecer os modelos disponíveis.`
+                  `Olá ${data.consultant.name}! Sou ${data.name}, da ${data.businessName}. Acabei de concluir meu cadastro de atacado pelo site e recebi seu contato para atendimento.`
                 )}
               />
             </div>

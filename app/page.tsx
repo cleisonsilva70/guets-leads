@@ -5,31 +5,31 @@ import { ProductTeaser } from "@/components/landing/ProductTeaser";
 
 export default function LandingPage() {
   return (
-    <main className="flex min-h-dvh flex-col overflow-x-hidden bg-ink text-white">
+    <main className="flex min-h-dvh flex-col overflow-x-hidden bg-ink text-white lg:h-dvh lg:overflow-hidden">
       <LandingTracking />
 
-      <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-12 sm:px-10 lg:py-16">
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-8 sm:px-10 lg:overflow-hidden lg:py-4">
         <Image
           src="/logo/logo-branco.png"
           alt="Guets"
           width={160}
           height={98}
-          className="h-10 w-auto"
+          className="h-8 w-auto"
           priority
         />
 
-        <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-8 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-16">
+        <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-6 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-10">
           <div className="lg:col-start-1 lg:row-start-1">
-            <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
+            <h1 className="text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
               Moda Fitness Premium Direto da Fábrica
             </h1>
 
-            <p className="mt-5 text-lg text-white/70">
+            <p className="mt-3 text-base text-white/70 lg:text-lg">
               Peças prontas para vender na sua loja física ou online, com atendimento direto de
               uma consultora especializada em atacado.
             </p>
 
-            <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/70">
+            <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-white/70">
               <li className="flex items-center gap-1.5">
                 <span aria-hidden>✓</span> Zero transparência
               </li>
@@ -54,7 +54,7 @@ export default function LandingPage() {
 
             <Link
               href="/quiz"
-              className="mt-10 block w-full rounded-2xl bg-white px-6 py-4 text-center text-base font-bold text-ink shadow-xl shadow-black/20 transition-all duration-150 hover:bg-smoke active:scale-[0.98] lg:max-w-xs"
+              className="mt-4 block w-full rounded-2xl bg-white px-6 py-4 text-center text-base font-bold text-ink shadow-xl shadow-black/20 transition-all duration-150 hover:bg-smoke active:scale-[0.98] lg:max-w-xs"
             >
               QUERO COMPRAR NO ATACADO
             </Link>
