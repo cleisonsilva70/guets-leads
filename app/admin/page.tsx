@@ -46,6 +46,26 @@ export default async function AdminDashboardPage() {
         </div>
       </section>
 
+      {metrics.whatsappClicked !== undefined ? (
+        <section>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
+            Contato com a consultora
+          </h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <MetricCard
+              label="Abriram o WhatsApp da consultora"
+              value={metrics.whatsappClicked}
+              hint="Abrir a conversa não garante que a mensagem foi enviada"
+            />
+            <MetricCard
+              label="Taxa de abertura"
+              value={`${metrics.leadsMonth > 0 ? Math.round((metrics.whatsappClicked / metrics.leadsMonth) * 100) : 0}%`}
+              hint="Abriram ÷ leads do mês"
+            />
+          </div>
+        </section>
+      ) : null}
+
       <section>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
           Leads por consultora
@@ -56,7 +76,10 @@ export default async function AdminDashboardPage() {
               <tr>
                 <th className="px-4 py-3 font-medium">Consultora</th>
                 <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Leads recebidos</th>
+                <th className="px-4 py-3 font-medium">Leads atribuídos</th>
+                {metrics.whatsappClicked !== undefined ? (
+                  <th className="px-4 py-3 font-medium">Abriram o WhatsApp</th>
+                ) : null}
               </tr>
             </thead>
             <tbody>
@@ -73,11 +96,14 @@ export default async function AdminDashboardPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">{c.leadCount}</td>
+                  {metrics.whatsappClicked !== undefined ? (
+                    <td className="px-4 py-3">{c.whatsappClicks ?? 0}</td>
+                  ) : null}
                 </tr>
               ))}
               {metrics.leadsByConsultant.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-4 py-6 text-center text-muted">
+                  <td colSpan={4} className="px-4 py-6 text-center text-muted">
                     Nenhuma consultora cadastrada ainda.
                   </td>
                 </tr>

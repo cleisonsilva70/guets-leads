@@ -72,6 +72,10 @@ export default function SuccessPage() {
             </div>
 
             <div className="mt-8">
+              <p className="mb-4 text-base font-semibold text-ink">
+                Falta só um passo: envie sua mensagem para {data.consultant.name} e garanta seu
+                atendimento.
+              </p>
               <WhatsappCta
                 leadId={data.leadId}
                 consultantName={data.consultant.name}

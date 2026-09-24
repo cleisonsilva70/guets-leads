@@ -6,6 +6,8 @@ export interface ConsultantLeadCount {
   consultantName: string;
   active: boolean;
   leadCount: number;
+  /** Leads que clicaram no botão de WhatsApp (undefined até o Apps Script ser atualizado). */
+  whatsappClicks?: number;
 }
 
 export interface DashboardMetrics {
@@ -18,6 +20,7 @@ export interface DashboardMetrics {
   minimumOrderAccepted: number;
   minimumOrderRejected: number;
   minimumOrderAcceptanceRate: number;
+  whatsappClicked?: number;
   leadsByConsultant: ConsultantLeadCount[];
 }
 

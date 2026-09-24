@@ -9,6 +9,7 @@ export interface Consultant {
   active: boolean;
   lastAssignedAt: string | null;
   leadCount: number;
+  hasAccessCode?: boolean;
 }
 
 export async function listConsultants(): Promise<Consultant[]> {
@@ -33,4 +34,19 @@ export async function updateConsultant(
     whatsapp: input.whatsapp ? normalizeWhatsapp(input.whatsapp) : undefined,
     active: input.active,
   });
+}
+
+export async function setConsultantAccessCodeHash(id: string, accessCodeHash: string): Promise<void> {
+  await sheetsPost("update_consultant", { id, accessCodeHash });
+}
+
+/** Devolve a consultora dona do código (hash SHA-256 em hex), se ela existir e estiver ativa. */
+export async function findConsultantByAccessCodeHash(
+  accessCodeHash: string
+): Promise<{ id: string; name: string } | null> {
+  const result = await sheetsPost<{ consultant: { id: string; name: string } | null }>(
+    "consultant_login",
+    { accessCodeHash }
+  );
+  return result.consultant ?? null;
 }

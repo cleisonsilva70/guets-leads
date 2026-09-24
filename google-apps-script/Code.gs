@@ -83,7 +83,9 @@ const LEADS_HEADERS = [
   "LandingPage", "Status",
 ];
 
-const CONSULTANTS_HEADERS = ["ID", "Nome", "WhatsApp", "Ativa", "UltimaAtribuicao"];
+// CodigoAcessoHash: SHA-256 (hex) do código que a consultora usa pra entrar em
+// /consultora no site. Nunca guardamos o código em si, só o hash.
+const CONSULTANTS_HEADERS = ["ID", "Nome", "WhatsApp", "Ativa", "UltimaAtribuicao", "CodigoAcessoHash"];
 
 const EVENTS_HEADERS = [
   "DataHora", "EventName", "SessionID", "LeadID", "Step", "Metadata",
@@ -132,6 +134,7 @@ function doPost(e) {
     if (action === "create_consultant") return jsonResponse(createConsultant(payload));
     if (action === "update_consultant") return jsonResponse(updateConsultant(payload));
     if (action === "update_lead_status") return jsonResponse(updateLeadStatus(payload));
+    if (action === "consultant_login") return jsonResponse(consultantLogin(payload));
     return jsonResponse({ error: "ação desconhecida: " + action }, 400);
   } catch (err) {
     return jsonResponse({ error: String(err && err.message ? err.message : err) }, 500);
@@ -430,8 +433,31 @@ function listConsultants() {
       active: c.Ativa === true || String(c.Ativa).toUpperCase() === "TRUE",
       lastAssignedAt: c.UltimaAtribuicao || null,
       leadCount: leadCount,
+      hasAccessCode: !!c.CodigoAcessoHash,
     };
   });
+}
+
+/**
+ * Login da consultora no site: recebe o SHA-256 (hex) do código digitado e
+ * compara com o hash guardado, em tempo constante. Só consultoras ativas
+ * entram. Devolve {consultant: {id, name}} ou {consultant: null}.
+ */
+function consultantLogin(payload) {
+  const given = String(payload.accessCodeHash || "").trim().toLowerCase();
+  if (!given) return { consultant: null };
+  const givenBytes = sha256Bytes(given);
+  const consultants = sheetToObjects(getSheet(CONSULTANTS_SHEET_NAME), CONSULTANTS_HEADERS);
+  let found = null;
+  consultants.forEach(function (c) {
+    const stored = String(c.CodigoAcessoHash || "").trim().toLowerCase();
+    if (!stored) return;
+    const isActive = c.Ativa === true || String(c.Ativa).toUpperCase() === "TRUE";
+    if (constantTimeEqualBytes(givenBytes, sha256Bytes(stored)) && isActive) {
+      found = { id: asText(c.ID), name: c.Nome };
+    }
+  });
+  return { consultant: found };
 }
 
 function createConsultant(payload) {
@@ -450,6 +476,11 @@ function updateConsultant(payload) {
       if (payload.name !== undefined) sheet.getRange(rowNum, 2).setValue(sanitizeForSheet(payload.name));
       if (payload.whatsapp !== undefined) sheet.getRange(rowNum, 3).setValue(sanitizeForSheet(payload.whatsapp));
       if (payload.active !== undefined) sheet.getRange(rowNum, 4).setValue(payload.active === true);
+      if (payload.accessCodeHash !== undefined) {
+        const col = CONSULTANTS_HEADERS.indexOf("CodigoAcessoHash") + 1;
+        sheet.getRange(1, col).setValue("CodigoAcessoHash");
+        sheet.getRange(rowNum, col).setValue(String(payload.accessCodeHash));
+      }
       return { ok: true };
     }
   }
@@ -460,7 +491,20 @@ function updateConsultant(payload) {
 // Leads (admin)
 // ---------------------------------------------------------------------------
 
-function leadRowToObject(l) {
+/**
+ * Ids dos leads que clicaram (ou tiveram aberto automaticamente) o botão de
+ * WhatsApp da tela de sucesso. É o único momento em que a consultora recebe
+ * o contato: é o lead quem manda a mensagem. Conta lead único.
+ */
+function buildClickedLeadIds(events) {
+  const ids = {};
+  (events || sheetToObjects(getSheet(EVENTS_SHEET_NAME), EVENTS_HEADERS)).forEach(function (ev) {
+    if (ev.EventName === "whatsapp_clicked" && ev.LeadID) ids[String(ev.LeadID)] = true;
+  });
+  return ids;
+}
+
+function leadRowToObject(l, clickedLeadIds) {
   return {
     id: l.LeadID,
     createdAt: l.DataHora instanceof Date ? l.DataHora.toISOString() : String(l.DataHora),
@@ -494,6 +538,7 @@ function leadRowToObject(l) {
     fbclid: l.Fbclid,
     landingPage: l.LandingPage,
     status: l.Status,
+    whatsappClicked: !!(clickedLeadIds && clickedLeadIds[String(l.LeadID)]),
   };
 }
 
@@ -516,7 +561,10 @@ function listLeads(params) {
   const total = leads.length;
   const page = params.page ? parseInt(params.page, 10) : 1;
   const start = (page - 1) * PAGE_SIZE;
-  const pageLeads = leads.slice(start, start + PAGE_SIZE).map(leadRowToObject);
+  const clicked = buildClickedLeadIds();
+  const pageLeads = leads.slice(start, start + PAGE_SIZE).map(function (l) {
+    return leadRowToObject(l, clicked);
+  });
 
   return {
     leads: pageLeads,
@@ -531,7 +579,7 @@ function getLeadById(leadId) {
   const found = leads.find(function (l) {
     return l.LeadID === leadId;
   });
-  return found ? leadRowToObject(found) : null;
+  return found ? leadRowToObject(found, buildClickedLeadIds()) : null;
 }
 
 function updateLeadStatus(payload) {
@@ -580,6 +628,13 @@ function getMetrics() {
     }).length;
   }
 
+  const clickedLeadIds = buildClickedLeadIds(events);
+  function clickedCount(consultantId) {
+    return leads.filter(function (l) {
+      return clickedLeadIds[String(l.LeadID)] && (!consultantId || l.ConsultoraID === consultantId);
+    }).length;
+  }
+
   const minimumOrderAccepted = countEvents("minimum_order_accepted");
   const minimumOrderRejected = countEvents("minimum_order_disqualified");
   const totalResponses = minimumOrderAccepted + minimumOrderRejected;
@@ -594,12 +649,14 @@ function getMetrics() {
     minimumOrderAccepted: minimumOrderAccepted,
     minimumOrderRejected: minimumOrderRejected,
     minimumOrderAcceptanceRate: totalResponses > 0 ? Math.round((minimumOrderAccepted / totalResponses) * 100) : 0,
+    whatsappClicked: clickedCount(null),
     leadsByConsultant: consultants.map(function (c) {
       return {
         consultantId: c.id,
         consultantName: c.name,
         active: c.active,
         leadCount: c.leadCount,
+        whatsappClicks: clickedCount(c.id),
       };
     }),
   };

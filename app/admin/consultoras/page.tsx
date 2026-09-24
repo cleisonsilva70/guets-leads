@@ -1,6 +1,7 @@
 import { revalidatePath, updateTag } from "next/cache";
 import { listConsultants, createConsultant, updateConsultant } from "@/lib/admin/consultants";
 import { formatWhatsappInput } from "@/lib/validation/whatsapp";
+import { AccessCodeButton } from "@/components/admin/AccessCodeButton";
 
 async function createConsultantAction(formData: FormData) {
   "use server";
@@ -84,8 +85,9 @@ export default async function ConsultantsPage() {
               <th className="px-4 py-3 font-medium">Nome</th>
               <th className="px-4 py-3 font-medium">WhatsApp</th>
               <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Leads recebidos</th>
+              <th className="px-4 py-3 font-medium">Leads atribuídos</th>
               <th className="px-4 py-3 font-medium">Última atribuição</th>
+              <th className="px-4 py-3 font-medium">Acesso à área da consultora</th>
               <th className="px-4 py-3 font-medium">Ações</th>
             </tr>
           </thead>
@@ -123,6 +125,9 @@ export default async function ConsultantsPage() {
                   {c.lastAssignedAt ? new Date(c.lastAssignedAt).toLocaleString("pt-BR") : "—"}
                 </td>
                 <td className="px-4 py-3">
+                  <AccessCodeButton consultantId={c.id} hasCode={c.hasAccessCode === true} />
+                </td>
+                <td className="px-4 py-3">
                   <form action={toggleActiveAction}>
                     <input type="hidden" name="id" value={c.id} />
                     <input type="hidden" name="active" value={String(c.active)} />
@@ -138,7 +143,7 @@ export default async function ConsultantsPage() {
             ))}
             {consultants.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-muted">
+                <td colSpan={7} className="px-4 py-6 text-center text-muted">
                   Nenhuma consultora cadastrada.
                 </td>
               </tr>

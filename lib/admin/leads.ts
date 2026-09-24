@@ -40,6 +40,8 @@ export interface AdminLead {
   fbclid: string | null;
   landingPage: string | null;
   status: string;
+  /** O lead já abriu a conversa com a consultora (clique ou abertura automática). */
+  whatsappClicked?: boolean;
 }
 
 export interface LeadListFilters {

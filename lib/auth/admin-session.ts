@@ -33,6 +33,11 @@ async function hmac(data: string): Promise<string> {
   return toBase64Url(signature);
 }
 
+/** Assinatura HMAC com o mesmo segredo do admin; quem chama põe um prefixo próprio no `data` pra separar os tipos de sessão. */
+export async function signWithSessionSecret(data: string): Promise<string> {
+  return hmac(data);
+}
+
 export async function createAdminSessionToken(): Promise<string> {
   const issuedAt = Date.now().toString();
   const signature = await hmac(issuedAt);
