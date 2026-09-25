@@ -147,7 +147,7 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
                 <td className="px-4 py-3">{lead.classification}</td>
                 <td className="px-4 py-3">{lead.consultantName ?? "—"}</td>
                 <td className="px-4 py-3">{lead.utmCampaign ?? "—"}</td>
-                <td className="px-4 py-3">{new Date(lead.createdAt).toLocaleDateString("pt-BR")}</td>
+                <td className="px-4 py-3">{new Date(lead.createdAt).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}</td>
                 <td className="px-4 py-3">{lead.status}</td>
               </tr>
             ))}

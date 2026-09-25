@@ -147,7 +147,7 @@ export default async function LeadDetailPage({ params }: PageProps) {
       <section className="rounded-2xl border border-smoke bg-white p-5">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">Sistema</h2>
         <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          <Field label="Data do cadastro" value={new Date(lead.createdAt).toLocaleString("pt-BR")} />
+          <Field label="Data do cadastro" value={new Date(lead.createdAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} />
         </dl>
       </section>
     </div>

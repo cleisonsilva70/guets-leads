@@ -122,7 +122,7 @@ export default async function ConsultantsPage() {
                 </td>
                 <td className="px-4 py-3">{c.leadCount}</td>
                 <td className="px-4 py-3 text-muted">
-                  {c.lastAssignedAt ? new Date(c.lastAssignedAt).toLocaleString("pt-BR") : "—"}
+                  {c.lastAssignedAt ? new Date(c.lastAssignedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "—"}
                 </td>
                 <td className="px-4 py-3">
                   <AccessCodeButton consultantId={c.id} hasCode={c.hasAccessCode === true} />
