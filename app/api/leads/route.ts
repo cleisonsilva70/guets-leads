@@ -82,12 +82,15 @@ export async function POST(request: Request) {
         userAgent: request.headers.get("user-agent"),
         fbp: readCookie(cookieHeader, "_fbp"),
         fbc: readCookie(cookieHeader, "_fbc"),
+        value: result.leadScore,
+        currency: "BRL",
       });
     });
 
     return NextResponse.json({
       leadId: result.leadId,
       consultant: result.consultant,
+      leadScore: result.leadScore,
     });
   } catch (error) {
     console.error("Erro ao gravar lead", error);

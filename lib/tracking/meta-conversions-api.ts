@@ -38,6 +38,9 @@ export interface MetaLeadEventInput {
   userAgent: string | null;
   fbp: string | null;
   fbc: string | null;
+  /** Score do lead (0-100): dá pro Meta priorizar, ao longo do tempo, público parecido com quem pontua mais alto, não só "qualquer Lead". */
+  value: number;
+  currency: string;
 }
 
 /**
@@ -66,6 +69,10 @@ export async function sendMetaLeadEvent(input: MetaLeadEventInput): Promise<void
           event_id: input.eventId,
           action_source: "website",
           event_source_url: input.eventSourceUrl,
+          custom_data: {
+            value: input.value,
+            currency: input.currency,
+          },
           user_data: {
             em: [hashedEmail],
             ph: [hashedPhone],

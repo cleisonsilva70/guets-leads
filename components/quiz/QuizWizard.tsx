@@ -176,6 +176,7 @@ export function QuizWizard() {
       const data = (await response.json()) as {
         leadId: string;
         consultant: { name: string; whatsapp: string } | null;
+        leadScore: number;
       };
 
       sessionStorage.setItem(
@@ -188,7 +189,7 @@ export function QuizWizard() {
         })
       );
 
-      fireMetaPixelStandardEvent("Lead", {}, data.leadId);
+      fireMetaPixelStandardEvent("Lead", { value: data.leadScore, currency: "BRL" }, data.leadId);
       fireMetaPixelEvent("QualifiedLead");
       fireGa4Event("registration_complete");
 

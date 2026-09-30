@@ -23,6 +23,8 @@ export interface SubmitLeadResult {
   leadId: string;
   isNew: boolean;
   consultant: SubmitLeadConsultant | null;
+  /** Score calculado agora mesmo a partir das respostas do quiz, mesmo em reenvio de um WhatsApp já cadastrado. */
+  leadScore: number;
 }
 
 /**
@@ -80,5 +82,10 @@ export async function submitLead(input: CreateLeadRequest): Promise<SubmitLeadRe
     throw new Error("Resposta inválida da planilha ao gravar lead.");
   }
 
-  return { leadId: data.leadId, isNew: data.isNew ?? true, consultant: data.consultant ?? null };
+  return {
+    leadId: data.leadId,
+    isNew: data.isNew ?? true,
+    consultant: data.consultant ?? null,
+    leadScore: score,
+  };
 }
