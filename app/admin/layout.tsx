@@ -15,9 +15,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-dvh bg-cream">
       <header className="border-b border-smoke bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <nav className="flex items-center gap-6">
-            <span className="font-bold text-ink">Guets Admin</span>
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-6 sm:py-4">
+          <nav className="flex flex-wrap items-center gap-x-5 gap-y-1">
+            <span className="whitespace-nowrap font-bold text-ink">Guets Admin</span>
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -31,7 +31,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <LogoutButton />
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">{children}</main>
     </div>
   );
 }

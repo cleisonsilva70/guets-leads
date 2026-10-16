@@ -20,11 +20,15 @@ export interface MonthMetrics {
   whatsappOpened: number;
   minimumOrderAccepted: number;
   minimumOrderRejected: number;
+  /** Divisão do mês por consultora (id -> contagens). Só vem no Apps Script mais novo. */
+  byConsultant?: Record<string, { leadCount: number; whatsappClicks: number }>;
 }
 
 export interface DashboardMetrics {
   /** "all" ou "YYYY-MM"; só vem no Apps Script com filtro por mês. */
   period?: string;
+  /** Quando o Apps Script calculou estes números (ISO). */
+  generatedAt?: string;
   /** Leads do período selecionado. */
   total?: number;
   /** Sempre "agora", independentes do período. */
@@ -43,7 +47,14 @@ export interface DashboardMetrics {
   leadsByConsultant: ConsultantLeadCount[];
 }
 
-/** `month` no formato "YYYY-MM"; sem ele, o total de todos os meses. */
+/**
+ * `month` no formato "YYYY-MM"; sem ele, o total de todos os meses.
+ *
+ * O cálculo no Apps Script lê as abas Leads e Eventos (esta passa de 24 mil
+ * linhas), então a resposta fica em cache aqui por 1 minuto e lá por mais
+ * 90s. O painel pede sempre o total e troca de mês sozinho (ver period.ts),
+ * então só existe uma entrada de cache para o painel todo.
+ */
 export async function getDashboardMetrics(month?: string): Promise<DashboardMetrics> {
-  return sheetsGet<DashboardMetrics>("metrics", { month });
+  return sheetsGet<DashboardMetrics>("metrics", { month }, { revalidate: 60 });
 }
