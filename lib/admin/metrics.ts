@@ -6,11 +6,28 @@ export interface ConsultantLeadCount {
   consultantName: string;
   active: boolean;
   leadCount: number;
-  /** Leads que clicaram no botão de WhatsApp (undefined até o Apps Script ser atualizado). */
+  /** Leads que abriram o WhatsApp da consultora (undefined até o Apps Script ser atualizado). */
   whatsappClicks?: number;
 }
 
+export interface MonthMetrics {
+  /** "YYYY-MM" */
+  month: string;
+  leads: number;
+  hot: number;
+  qualified: number;
+  beginner: number;
+  whatsappOpened: number;
+  minimumOrderAccepted: number;
+  minimumOrderRejected: number;
+}
+
 export interface DashboardMetrics {
+  /** "all" ou "YYYY-MM"; só vem no Apps Script com filtro por mês. */
+  period?: string;
+  /** Leads do período selecionado. */
+  total?: number;
+  /** Sempre "agora", independentes do período. */
   leadsToday: number;
   leads7d: number;
   leadsMonth: number;
@@ -21,9 +38,12 @@ export interface DashboardMetrics {
   minimumOrderRejected: number;
   minimumOrderAcceptanceRate: number;
   whatsappClicked?: number;
+  /** Série mês a mês (mais recente primeiro). */
+  months?: MonthMetrics[];
   leadsByConsultant: ConsultantLeadCount[];
 }
 
-export async function getDashboardMetrics(): Promise<DashboardMetrics> {
-  return sheetsGet<DashboardMetrics>("metrics");
+/** `month` no formato "YYYY-MM"; sem ele, o total de todos os meses. */
+export async function getDashboardMetrics(month?: string): Promise<DashboardMetrics> {
+  return sheetsGet<DashboardMetrics>("metrics", { month });
 }

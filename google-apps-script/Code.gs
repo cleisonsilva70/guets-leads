@@ -103,7 +103,7 @@ function doGet(e) {
     if (action === "list_leads") return jsonResponse(listLeads(e.parameter));
     if (action === "get_lead") return jsonResponse({ lead: getLeadById(e.parameter.leadId) });
     if (action === "list_consultants") return jsonResponse({ consultants: listConsultants() });
-    if (action === "metrics") return jsonResponse(getMetrics());
+    if (action === "metrics") return jsonResponse(getMetrics(e.parameter));
     return jsonResponse({ error: "ação desconhecida: " + action }, 400);
   } catch (err) {
     return jsonResponse({ error: String(err && err.message ? err.message : err) }, 500);
@@ -600,10 +600,30 @@ function updateLeadStatus(payload) {
 // Métricas do dashboard
 // ---------------------------------------------------------------------------
 
-function getMetrics() {
-  const leads = sheetToObjects(getSheet(LEADS_SHEET_NAME), LEADS_HEADERS);
-  const events = sheetToObjects(getSheet(EVENTS_SHEET_NAME), EVENTS_HEADERS);
-  const consultants = listConsultants();
+/** "2026-10" no fuso do script (o mesmo que define "hoje"), ou "" se a data for inválida. */
+function monthKey(value) {
+  const d = value instanceof Date ? value : new Date(value);
+  if (isNaN(d.getTime())) return "";
+  return Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyy-MM");
+}
+
+/**
+ * Métricas do dashboard.
+ *
+ * Sem parâmetro, devolve o total de todos os meses (o comportamento de
+ * antes). Com `params.month` ("YYYY-MM"), os números de classificação,
+ * pedido mínimo, WhatsApp e consultoras são só daquele mês. `leadsToday`,
+ * `leads7d` e `leadsMonth` são sempre "agora", independentes do filtro.
+ * `months` traz a série mês a mês (para a tabela e o seletor do painel).
+ */
+function getMetrics(params) {
+  params = params || {};
+  const month = /^\d{4}-\d{2}$/.test(String(params.month || "")) ? String(params.month) : null;
+
+  const allLeads = sheetToObjects(getSheet(LEADS_SHEET_NAME), LEADS_HEADERS);
+  const allEvents = sheetToObjects(getSheet(EVENTS_SHEET_NAME), EVENTS_HEADERS);
+  const consultantRows = sheetToObjects(getSheet(CONSULTANTS_SHEET_NAME), CONSULTANTS_HEADERS);
+  const clickedLeadIds = buildClickedLeadIds(allEvents);
 
   const now = new Date();
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -611,10 +631,52 @@ function getMetrics() {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
   function countSince(date) {
-    return leads.filter(function (l) {
+    return allLeads.filter(function (l) {
       return new Date(l.DataHora).getTime() >= date.getTime();
     }).length;
   }
+
+  // Série mês a mês: leads/classificação/WhatsApp pelo mês do cadastro, pedido
+  // mínimo pelo mês do evento.
+  const byMonth = {};
+  function bucket(key) {
+    if (!byMonth[key]) {
+      byMonth[key] = {
+        month: key, leads: 0, hot: 0, qualified: 0, beginner: 0,
+        whatsappOpened: 0, minimumOrderAccepted: 0, minimumOrderRejected: 0,
+      };
+    }
+    return byMonth[key];
+  }
+  allLeads.forEach(function (l) {
+    const key = monthKey(l.DataHora);
+    if (!key) return;
+    const b = bucket(key);
+    b.leads++;
+    if (l.Classificacao === "Lead Quente") b.hot++;
+    if (l.Classificacao === "Lead Qualificado") b.qualified++;
+    if (l.Classificacao === "Lead Iniciante") b.beginner++;
+    if (clickedLeadIds[String(l.LeadID)]) b.whatsappOpened++;
+  });
+  allEvents.forEach(function (ev) {
+    if (ev.EventName !== "minimum_order_accepted" && ev.EventName !== "minimum_order_disqualified") return;
+    const key = monthKey(ev.DataHora);
+    if (!key) return;
+    const b = bucket(key);
+    if (ev.EventName === "minimum_order_accepted") b.minimumOrderAccepted++;
+    else b.minimumOrderRejected++;
+  });
+  const months = Object.keys(byMonth).sort().reverse().map(function (key) {
+    return byMonth[key];
+  });
+
+  // Recorte do período selecionado (ou tudo).
+  const leads = month
+    ? allLeads.filter(function (l) { return monthKey(l.DataHora) === month; })
+    : allLeads;
+  const events = month
+    ? allEvents.filter(function (ev) { return monthKey(ev.DataHora) === month; })
+    : allEvents;
 
   function countByClassification(label) {
     return leads.filter(function (l) {
@@ -628,10 +690,9 @@ function getMetrics() {
     }).length;
   }
 
-  const clickedLeadIds = buildClickedLeadIds(events);
   function clickedCount(consultantId) {
     return leads.filter(function (l) {
-      return clickedLeadIds[String(l.LeadID)] && (!consultantId || l.ConsultoraID === consultantId);
+      return clickedLeadIds[String(l.LeadID)] && (!consultantId || String(l.ConsultoraID) === consultantId);
     }).length;
   }
 
@@ -640,6 +701,8 @@ function getMetrics() {
   const totalResponses = minimumOrderAccepted + minimumOrderRejected;
 
   return {
+    period: month || "all",
+    total: leads.length,
     leadsToday: countSince(startOfDay),
     leads7d: countSince(sevenDaysAgo),
     leadsMonth: countSince(startOfMonth),
@@ -650,14 +713,18 @@ function getMetrics() {
     minimumOrderRejected: minimumOrderRejected,
     minimumOrderAcceptanceRate: totalResponses > 0 ? Math.round((minimumOrderAccepted / totalResponses) * 100) : 0,
     whatsappClicked: clickedCount(null),
-    leadsByConsultant: consultants.map(function (c) {
-      return {
-        consultantId: c.id,
-        consultantName: c.name,
-        active: c.active,
-        leadCount: c.leadCount,
-        whatsappClicks: clickedCount(c.id),
-      };
-    }),
+    months: months,
+    leadsByConsultant: consultantRows
+      .filter(function (c) { return c.ID; })
+      .map(function (c) {
+        const id = asText(c.ID);
+        return {
+          consultantId: id,
+          consultantName: c.Nome,
+          active: c.Ativa === true || String(c.Ativa).toUpperCase() === "TRUE",
+          leadCount: leads.filter(function (l) { return String(l.ConsultoraID) === id; }).length,
+          whatsappClicks: clickedCount(id),
+        };
+      }),
   };
 }
