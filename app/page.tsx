@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { LandingTracking } from "@/components/landing/LandingTracking";
 import { ProductTeaser } from "@/components/landing/ProductTeaser";
+import { promoHeadline } from "@/lib/config/commercial";
 
 export default function LandingPage() {
   return (
@@ -47,6 +48,10 @@ export default function LandingPage() {
           </div>
 
           <div className="lg:col-start-1 lg:row-start-2">
+            <p className="mb-3 inline-block rounded-2xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-semibold leading-snug text-white">
+              {promoHeadline}
+            </p>
+
             <p className="text-sm text-white/60">
               Responda algumas perguntas rápidas para a gente conhecer seu negócio e te colocar
               direto com a consultora certa.

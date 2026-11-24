@@ -68,7 +68,7 @@ export default function SuccessPage() {
             </p>
 
             <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-graphite/30 bg-graphite/5 px-4 py-2 text-sm font-semibold text-graphite">
-              Pedido mínimo: {minimumOrderLabel}
+              Condição especial de final de ano: pedido mínimo de {minimumOrderLabel}
             </div>
 
             <div className="mt-8">

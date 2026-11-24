@@ -1,3 +1,4 @@
+import { minimumOrderLabel } from "@/lib/config/commercial";
 import type {
   InvestmentRange,
   LeadStatus,
@@ -27,7 +28,9 @@ export const salesChannelLabels: Record<SalesChannel, string> = {
 };
 
 export const investmentRangeLabels: Record<InvestmentRange, string> = {
-  r1200_2000: "R$ 1.200 a R$ 2.000",
+  // O código "r1200_2000" é histórico (a faixa de entrada era R$ 1.200 a R$ 2.000);
+  // o texto acompanha o pedido mínimo atual, definido em lib/config/commercial.ts.
+  r1200_2000: `${minimumOrderLabel} a R$ 2.000`,
   r2001_3000: "R$ 2.001 a R$ 3.000",
   r3001_5000: "R$ 3.001 a R$ 5.000",
   r5001_10000: "R$ 5.001 a R$ 10.000",

@@ -60,7 +60,8 @@ export function calculateLeadScore(input: ScoringInput): number {
 
 /**
  * Faixas de classificação. Todo lead que chega aqui já confirmou o pedido
- * mínimo de R$ 1.200 — o score mede potencial adicional, não elegibilidade.
+ * mínimo (ver lib/config/commercial.ts) — o score mede potencial adicional,
+ * não elegibilidade.
  */
 export function classifyLeadScore(score: number): LeadClassification {
   if (score >= 70) return "hot";

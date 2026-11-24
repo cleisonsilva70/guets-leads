@@ -13,7 +13,7 @@ import {
   investmentRangeOptions,
   purchaseFrequencyOptions,
 } from "@/lib/quiz/config";
-import { minimumOrderLabel } from "@/lib/config/commercial";
+import { minimumOrderLabel, promoHeadline } from "@/lib/config/commercial";
 import { linksConfig } from "@/lib/config/links";
 import { captureAndPersistUtms, getStoredUtms, trackEvent } from "@/lib/tracking/client";
 import { FUNNEL_EVENTS } from "@/lib/tracking/events";
@@ -237,8 +237,8 @@ export function QuizWizard() {
         <QuizScreen
           step={STEP_NUMBER.minimum_order}
           totalSteps={TOTAL_STEPS}
-          eyebrow="Pedido mínimo"
-          title={`Nosso pedido mínimo no atacado é de ${minimumOrderLabel}.`}
+          eyebrow="Condição especial"
+          title={promoHeadline}
           subtitle="Esse valor cabe no que você pretende investir no seu primeiro pedido?"
         >
           <OptionButton
@@ -334,7 +334,7 @@ export function QuizWizard() {
           totalSteps={TOTAL_STEPS}
           banner="Formulário oficial de cadastro Guets"
           title="Complete seus dados"
-          subtitle={`Pedido mínimo: ${minimumOrderLabel}. Leva menos de 1 minuto.`}
+          subtitle={`Condição especial de final de ano: pedido mínimo de ${minimumOrderLabel} por tempo limitado. Leva menos de 1 minuto.`}
         >
           <RegistrationForm
             onSubmit={handleRegistrationSubmit}
